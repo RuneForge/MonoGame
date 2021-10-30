@@ -2,6 +2,12 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+#error SdlGamePlatform constuctor should be refactored so it's parameterless.
+#error SdlGamePlatform.m_game field should be refactored out.
+#error GamePlatform.Log method should be removed and logging should be implemented with the Microsoft.Extensions.Logging package.
+#error Game.Tick method should be called with the event-based approach.
+#error GraphicsDevice.Present method should be called with the event-based approach.
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,23 +23,23 @@ namespace Microsoft.Xna.Framework
 {
     internal class SdlGamePlatform : GamePlatform
     {
-        public override GameRunBehavior DefaultRunBehavior
-        {
-            get { return GameRunBehavior.Synchronous; }
-        }
+        #region Fields
 
-        private readonly Game _game;
-        private readonly List<Keys> _keys;
+        private readonly Game m_game;
+        private readonly List<Keys> m_keys;
+        private int m_isExiting;
+        private SdlGameWindow m_gameWindow;
 
-        private int _isExiting;
-        private SdlGameWindow _view;
+        #endregion
+
+        #region Constructors
 
         public SdlGamePlatform(Game game)
             : base(game)
         {
-            _game = game;
-            _keys = new List<Keys>();
-            Keyboard.SetKeys(_keys);
+            m_game = game;
+            m_keys = new List<Keys>();
+            Keyboard.SetKeys(m_keys);
 
             Sdl.Version sversion;
             Sdl.GetVersion(out sversion);
@@ -42,7 +48,7 @@ namespace Microsoft.Xna.Framework
             Sdl.Minor = sversion.Minor;
             Sdl.Patch = sversion.Patch;
 
-            int version = 100 * Sdl.Major + 10 * Sdl.Minor + Sdl.Patch;
+            int version = (100 * Sdl.Major) + (10 * Sdl.Minor) + Sdl.Patch;
 
             if (version <= 204)
                 Debug.WriteLine("Please use SDL 2.0.5 or higher.");
@@ -61,8 +67,21 @@ namespace Microsoft.Xna.Framework
             Sdl.DisableScreenSaver();
 
             GamePad.InitDatabase();
-            Window = _view = new SdlGameWindow(_game);
+            Window = m_gameWindow = new SdlGameWindow(m_game);
         }
+
+        #endregion
+
+        #region Manually-Implemented Properties
+
+        public override GameRunBehavior DefaultRunBehavior
+        {
+            get { return GameRunBehavior.Synchronous; }
+        }
+
+        #endregion
+
+        #region Methods
 
         public override void BeforeInitialize()
         {
@@ -71,17 +90,33 @@ namespace Microsoft.Xna.Framework
             base.BeforeInitialize();
         }
 
-        protected override void OnMouseVisibleChanged()
+        public override bool BeforeUpdate(GameTime gameTime)
         {
-            _view.SetCursorVisible(_game.IsMouseVisible);
+            return true;
         }
 
-        internal override void OnPresentationChanged(PresentationParameters pp)
+        public override bool BeforeDraw(GameTime gameTime)
         {
-            int displayIndex = Sdl.Window.GetDisplayIndex(Window.Handle);
-            string displayName = Sdl.Display.GetDisplayName(displayIndex);
-            BeginScreenDeviceChange(pp.IsFullScreen);
-            EndScreenDeviceChange(displayName, pp.BackBufferWidth, pp.BackBufferHeight);
+            return true;
+        }
+
+        public override void EnterFullScreen() { }
+
+        public override void ExitFullScreen() { }
+
+        public override void BeginScreenDeviceChange(bool willBeFullScreen)
+        {
+            m_gameWindow.BeginScreenDeviceChange(willBeFullScreen);
+        }
+
+        public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
+        {
+            m_gameWindow.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
+        }
+
+        public override void StartRunLoop()
+        {
+            throw new NotSupportedException("The desktop platform does not support asynchronous run loops");
         }
 
         public override void RunLoop()
@@ -95,9 +130,38 @@ namespace Microsoft.Xna.Framework
                 Threading.Run();
                 GraphicsDevice.DisposeContexts();
 
-                if (_isExiting > 0)
+                if (m_isExiting > 0)
                     break;
             }
+        }
+
+        public override void Present()
+        {
+            if (Game.GraphicsDevice != null)
+                Game.GraphicsDevice.Present();
+        }
+
+        public override void Exit()
+        {
+            Interlocked.Increment(ref m_isExiting);
+        }
+
+        public override void Log(string message)
+        {
+            Console.WriteLine(message);
+        }
+
+        protected override void OnMouseVisibleChanged()
+        {
+            m_gameWindow.SetCursorVisible(m_game.IsMouseVisible);
+        }
+
+        internal override void OnPresentationChanged(PresentationParameters pp)
+        {
+            int displayIndex = Sdl.Window.GetDisplayIndex(Window.Handle);
+            string displayName = Sdl.Display.GetDisplayName(displayIndex);
+            BeginScreenDeviceChange(pp.IsFullScreen);
+            EndScreenDeviceChange(displayName, pp.BackBufferWidth, pp.BackBufferHeight);
         }
 
         private void SdlRunLoop()
@@ -109,51 +173,60 @@ namespace Microsoft.Xna.Framework
                 switch (ev.Type)
                 {
                     case Sdl.EventType.Quit:
-                        _isExiting++;
+                        m_isExiting++;
                         break;
+
                     case Sdl.EventType.JoyDeviceAdded:
                         Joystick.AddDevice(ev.JoystickDevice.Which);
                         break;
+
                     case Sdl.EventType.JoyDeviceRemoved:
                         Joystick.RemoveDevice(ev.JoystickDevice.Which);
                         break;
+
                     case Sdl.EventType.ControllerDeviceRemoved:
                         GamePad.RemoveDevice(ev.ControllerDevice.Which);
                         break;
+
                     case Sdl.EventType.ControllerButtonUp:
                     case Sdl.EventType.ControllerButtonDown:
                     case Sdl.EventType.ControllerAxisMotion:
                         GamePad.UpdatePacketInfo(ev.ControllerDevice.Which, ev.ControllerDevice.TimeStamp);
                         break;
+
                     case Sdl.EventType.MouseWheel:
                         const int wheelDelta = 120;
                         Mouse.ScrollY += ev.Wheel.Y * wheelDelta;
                         Mouse.ScrollX += ev.Wheel.X * wheelDelta;
                         break;
+
                     case Sdl.EventType.MouseMotion:
                         Window.m_mouseState.X = ev.Motion.X;
                         Window.m_mouseState.Y = ev.Motion.Y;
                         break;
+
                     case Sdl.EventType.KeyDown:
                         {
                             Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
-                            if (!_keys.Contains(key))
-                                _keys.Add(key);
+                            if (!m_keys.Contains(key))
+                                m_keys.Add(key);
                             char character = (char)ev.Key.Keysym.Sym;
-                            _view.OnKeyDown(new InputKeyEventArgs(key));
+                            m_gameWindow.OnKeyDown(new InputKeyEventArgs(key));
                             if (char.IsControl(character))
-                                _view.OnTextTyped(new TextTypedEventArgs(character, key));
-                            break;
+                                m_gameWindow.OnTextTyped(new TextTypedEventArgs(character, key));
                         }
+                        break;
+
                     case Sdl.EventType.KeyUp:
                         {
                             Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
-                            _keys.Remove(key);
-                            _view.OnKeyUp(new InputKeyEventArgs(key));
-                            break;
+                            m_keys.Remove(key);
+                            m_gameWindow.OnKeyUp(new InputKeyEventArgs(key));
                         }
+                        break;
+
                     case Sdl.EventType.TextInput:
-                        if (_view.HandleTextInput)
+                        if (m_gameWindow.HandleTextInput)
                         {
                             int len = 0;
                             int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
@@ -197,7 +270,7 @@ namespace Microsoft.Xna.Framework
 
                                         if (codepoint >= 0 && codepoint < 0xFFFF)
                                         {
-                                            _view.OnTextTyped(new TextTypedEventArgs((char)codepoint, KeyboardUtil.ToXna(codepoint)));
+                                            m_gameWindow.OnTextTyped(new TextTypedEventArgs((char)codepoint, KeyboardUtil.ToXna(codepoint)));
                                             // UTF16 characters beyond 0xFFFF are not supported (and would require a surrogate encoding that is not supported by the char type)
                                         }
                                     }
@@ -207,13 +280,13 @@ namespace Microsoft.Xna.Framework
                             }
                         }
                         break;
-                    case Sdl.EventType.WindowEvent:
 
+                    case Sdl.EventType.WindowEvent:
                         switch (ev.Window.EventID)
                         {
                             case Sdl.Window.EventId.Resized:
                             case Sdl.Window.EventId.SizeChanged:
-                                _view.ClientResize(ev.Window.Data1, ev.Window.Data2);
+                                m_gameWindow.ClientResize(ev.Window.Data1, ev.Window.Data2);
                                 break;
                             case Sdl.Window.EventId.FocusGained:
                                 Active = true;
@@ -222,10 +295,10 @@ namespace Microsoft.Xna.Framework
                                 Active = false;
                                 break;
                             case Sdl.Window.EventId.Moved:
-                                _view.Moved();
+                                m_gameWindow.Moved();
                                 break;
                             case Sdl.Window.EventId.Close:
-                                _isExiting++;
+                                m_isExiting++;
                                 break;
                         }
                         break;
@@ -255,61 +328,16 @@ namespace Microsoft.Xna.Framework
                 return -1;
         }
 
-        public override void StartRunLoop()
-        {
-            throw new NotSupportedException("The desktop platform does not support asynchronous run loops");
-        }
+        #endregion
 
-        public override void Exit()
-        {
-            Interlocked.Increment(ref _isExiting);
-        }
-
-        public override bool BeforeUpdate(GameTime gameTime)
-        {
-            return true;
-        }
-
-        public override bool BeforeDraw(GameTime gameTime)
-        {
-            return true;
-        }
-
-        public override void EnterFullScreen()
-        {
-        }
-
-        public override void ExitFullScreen()
-        {
-        }
-
-        public override void BeginScreenDeviceChange(bool willBeFullScreen)
-        {
-            _view.BeginScreenDeviceChange(willBeFullScreen);
-        }
-
-        public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
-        {
-            _view.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
-        }
-
-        public override void Log(string message)
-        {
-            Console.WriteLine(message);
-        }
-
-        public override void Present()
-        {
-            if (Game.GraphicsDevice != null)
-                Game.GraphicsDevice.Present();
-        }
+        #region IDisposable implementation
 
         protected override void Dispose(bool disposing)
         {
-            if (_view != null)
+            if (m_gameWindow != null)
             {
-                _view.Dispose();
-                _view = null;
+                m_gameWindow.Dispose();
+                m_gameWindow = null;
 
                 Joystick.CloseDevices();
 
@@ -318,5 +346,7 @@ namespace Microsoft.Xna.Framework
 
             base.Dispose(disposing);
         }
+
+        #endregion
     }
 }
