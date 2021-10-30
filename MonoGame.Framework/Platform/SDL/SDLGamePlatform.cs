@@ -295,7 +295,7 @@ namespace Microsoft.Xna.Framework
                                 Active = false;
                                 break;
                             case Sdl.Window.EventId.Moved:
-                                m_gameWindow.Moved();
+                                m_gameWindow.OnWindowMoved();
                                 break;
                             case Sdl.Window.EventId.Close:
                                 m_isExiting++;
