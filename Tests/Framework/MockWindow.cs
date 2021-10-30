@@ -1,11 +1,12 @@
 ﻿using System;
+
 using Microsoft.Xna.Framework;
 
 namespace MonoGame.Tests.Framework
 {
 
-// TODO: Mac implements its own GameWindow class that cannot 
-// be overloaded...  if you hate this hack, go fix it.
+    // TODO: Mac implements its own GameWindow class that cannot 
+    // be overloaded...  if you hate this hack, go fix it.
 #if !MONOMAC
 
     internal class MockWindow : GameWindow
@@ -22,7 +23,7 @@ namespace MonoGame.Tests.Framework
         public override Point Position { get; set; }
 #endif
 
-        public override DisplayOrientation CurrentOrientation
+        public override DisplayOrientations CurrentOrientation
         {
             get { throw new NotImplementedException(); }
         }
@@ -47,12 +48,12 @@ namespace MonoGame.Tests.Framework
             throw new NotImplementedException();
         }
 
-        protected internal override void SetSupportedOrientations(DisplayOrientation orientations)
+        protected internal override void SetSupportedOrientations(DisplayOrientations orientations)
         {
             throw new NotImplementedException();
         }
 
-        protected override void SetTitle(string title)
+        protected override void OnBeforeTitleSet(string title)
         {
             throw new NotImplementedException();
         }

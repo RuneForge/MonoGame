@@ -48,10 +48,10 @@ namespace MonoGame.Tests.Framework
         [Test]
         public void DisplayOrientationEnum()
         {
-            Assert.AreEqual(0, (int)DisplayOrientation.Default);
-            Assert.AreEqual(1, (int)DisplayOrientation.LandscapeLeft);
-            Assert.AreEqual(2, (int)DisplayOrientation.LandscapeRight);
-            Assert.AreEqual(4, (int)DisplayOrientation.Portrait);
+            Assert.AreEqual(0, (int)DisplayOrientations.Default);
+            Assert.AreEqual(1, (int)DisplayOrientations.LandscapeLeft);
+            Assert.AreEqual(2, (int)DisplayOrientations.LandscapeRight);
+            Assert.AreEqual(4, (int)DisplayOrientations.Portrait);
         }
 
         [Test]
@@ -184,14 +184,14 @@ namespace MonoGame.Tests.Framework
         public void EffectParameterTypeEnum()
         {
             Assert.AreEqual(0, (int) EffectParameterType.Void);
-		    Assert.AreEqual(1, (int)EffectParameterType.Bool);
-		    Assert.AreEqual(2, (int)EffectParameterType.Int32);
-		    Assert.AreEqual(3, (int)EffectParameterType.Single);
-		    Assert.AreEqual(4, (int)EffectParameterType.String);
-		    Assert.AreEqual(5, (int)EffectParameterType.Texture);
-		    Assert.AreEqual(6, (int)EffectParameterType.Texture1D);
-		    Assert.AreEqual(7, (int)EffectParameterType.Texture2D);
-		    Assert.AreEqual(8, (int)EffectParameterType.Texture3D);
+            Assert.AreEqual(1, (int)EffectParameterType.Bool);
+            Assert.AreEqual(2, (int)EffectParameterType.Int32);
+            Assert.AreEqual(3, (int)EffectParameterType.Single);
+            Assert.AreEqual(4, (int)EffectParameterType.String);
+            Assert.AreEqual(5, (int)EffectParameterType.Texture);
+            Assert.AreEqual(6, (int)EffectParameterType.Texture1D);
+            Assert.AreEqual(7, (int)EffectParameterType.Texture2D);
+            Assert.AreEqual(8, (int)EffectParameterType.Texture3D);
             Assert.AreEqual(9, (int)EffectParameterType.TextureCube);
         }
 

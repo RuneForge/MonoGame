@@ -3,16 +3,17 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+
 using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
     /// <summary>
-    /// This class is used in the <see cref="GameWindow.TextInput"/> event as <see cref="EventArgs"/>.
+    /// This class is used in the <see cref="GameWindow.TextTyped"/> event as <see cref="EventArgs"/>.
     /// </summary>
-    public struct TextInputEventArgs
+    public struct TextTypedEventArgs
     {
-        public TextInputEventArgs(char character, Keys key = Keys.None)
+        public TextTypedEventArgs(char character, Keys key = Keys.None)
         {
             Character = character;
             Key = key;
