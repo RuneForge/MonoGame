@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using System.Runtime.InteropServices;
+using System.Threading;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 using MonoGame.Framework.Utilities;
 
 namespace Microsoft.Xna.Framework
@@ -40,7 +42,7 @@ namespace Microsoft.Xna.Framework
             Sdl.Minor = sversion.Minor;
             Sdl.Patch = sversion.Patch;
 
-            var version = 100 * Sdl.Major + 10 * Sdl.Minor + Sdl.Patch;
+            int version = 100 * Sdl.Major + 10 * Sdl.Minor + Sdl.Patch;
 
             if (version <= 204)
                 Debug.WriteLine("Please use SDL 2.0.5 or higher.");
@@ -69,15 +71,15 @@ namespace Microsoft.Xna.Framework
             base.BeforeInitialize();
         }
 
-        protected override void OnIsMouseVisibleChanged()
+        protected override void OnMouseVisibleChanged()
         {
             _view.SetCursorVisible(_game.IsMouseVisible);
         }
 
         internal override void OnPresentationChanged(PresentationParameters pp)
         {
-            var displayIndex = Sdl.Window.GetDisplayIndex(Window.Handle);
-            var displayName = Sdl.Display.GetDisplayName(displayIndex);
+            int displayIndex = Sdl.Window.GetDisplayIndex(Window.Handle);
+            string displayName = Sdl.Display.GetDisplayName(displayIndex);
             BeginScreenDeviceChange(pp.IsFullScreen);
             EndScreenDeviceChange(displayName, pp.BackBufferWidth, pp.BackBufferHeight);
         }
@@ -133,23 +135,23 @@ namespace Microsoft.Xna.Framework
                         Window.MouseState.Y = ev.Motion.Y;
                         break;
                     case Sdl.EventType.KeyDown:
-                    {
-                        var key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
-                        if (!_keys.Contains(key))
-                            _keys.Add(key);
-                        char character = (char)ev.Key.Keysym.Sym;
-                        _view.OnKeyDown(new InputKeyEventArgs(key));
-                        if (char.IsControl(character))
-                            _view.OnTextInput(new TextInputEventArgs(character, key));
-                        break;
-                    }
+                        {
+                            Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
+                            if (!_keys.Contains(key))
+                                _keys.Add(key);
+                            char character = (char)ev.Key.Keysym.Sym;
+                            _view.OnKeyDown(new InputKeyEventArgs(key));
+                            if (char.IsControl(character))
+                                _view.OnTextInput(new TextInputEventArgs(character, key));
+                            break;
+                        }
                     case Sdl.EventType.KeyUp:
-                    {
-                        var key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
-                        _keys.Remove(key);
-                        _view.OnKeyUp(new InputKeyEventArgs(key));
-                        break;
-                    }
+                        {
+                            Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
+                            _keys.Remove(key);
+                            _view.OnKeyUp(new InputKeyEventArgs(key));
+                            break;
+                        }
                     case Sdl.EventType.TextInput:
                         if (_view.IsTextInputHandled)
                         {
@@ -214,10 +216,10 @@ namespace Microsoft.Xna.Framework
                                 _view.ClientResize(ev.Window.Data1, ev.Window.Data2);
                                 break;
                             case Sdl.Window.EventId.FocusGained:
-                                IsActive = true;
+                                Active = true;
                                 break;
                             case Sdl.Window.EventId.FocusLost:
-                                IsActive = false;
+                                Active = false;
                                 break;
                             case Sdl.Window.EventId.Moved:
                                 _view.Moved();
