@@ -153,7 +153,7 @@ namespace Microsoft.Xna.Framework
 
         protected override void OnMouseVisibleChanged()
         {
-            m_gameWindow.SetCursorVisible(m_game.IsMouseVisible);
+            m_gameWindow.SetCursorVisible(m_game.MouseVisible);
         }
 
         internal override void OnPresentationChanged(PresentationParameters pp)

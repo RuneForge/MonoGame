@@ -18,7 +18,7 @@ namespace MonoGame.Tests.Framework
         {
             var game = new TestGameBase();
             var gdm = new GraphicsDeviceManager(game);
-            game.IsFixedTimeStep = false;
+            game.FixedTimeStep = false;
             game.ExitCondition = x => x.UpdateNumber > 1;
 
             var constructor2        = new InitializeOrderComponent(game);
