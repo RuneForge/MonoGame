@@ -2,9 +2,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-#error SdlGameWindow constuctor should be refactored so it's parameterless.
-#error GamePlatform.m_game field should be refactored out.
-#error Create IGraphicsDeviceManager, IGraphicsDeviceProvider and implement proper injection.
 
 using System;
 using System.IO;
@@ -22,6 +19,8 @@ namespace Microsoft.Xna.Framework
 
         public static GameWindow Instance;
 
+        private readonly Lazy<GraphicsDeviceManager> m_graphicsDeviceManagerProvider;
+        private readonly Lazy<GraphicsDevice> m_graphicsDeviceProvider;
         private readonly IntPtr m_icon;
         private IntPtr m_handle;
         private bool m_disposed;
@@ -36,8 +35,6 @@ namespace Microsoft.Xna.Framework
         private bool m_wasMoved;
         private bool m_supressMoved;
 
-        internal readonly Game m_game;
-
         public uint? Id;
         public bool IsFullScreen;
 
@@ -45,9 +42,11 @@ namespace Microsoft.Xna.Framework
 
         #region Constructors, Destructors
 
-        public SdlGameWindow(Game game)
+        public SdlGameWindow(Lazy<GraphicsDeviceManager> graphicsDeviceManagerProvider, Lazy<GraphicsDevice> graphicsDeviceProvider)
         {
-            m_game = game;
+            m_graphicsDeviceManagerProvider = graphicsDeviceManagerProvider;
+            m_graphicsDeviceProvider = graphicsDeviceProvider;
+
             m_screenDeviceName = "";
 
             Instance = this;
@@ -172,6 +171,11 @@ namespace Microsoft.Xna.Framework
 
         public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
         {
+            GraphicsDeviceManager graphicsDeviceManager = m_graphicsDeviceManagerProvider.Value;
+
+            if (graphicsDeviceManager == null)
+                throw new InvalidOperationException($"{nameof(GraphicsDeviceManager)} has not been created yet.");
+
             m_screenDeviceName = screenDeviceName;
 
             Rectangle prevBounds = ClientBounds;
@@ -180,11 +184,11 @@ namespace Microsoft.Xna.Framework
             Sdl.Rectangle displayRect;
             Sdl.Display.GetBounds(displayIndex, out displayRect);
 
-            if (m_willBeFullScreen != IsFullScreen || m_hardwareSwitch != m_game.GraphicsDeviceManager.HardwareModeSwitch)
+            if (m_willBeFullScreen != IsFullScreen || m_hardwareSwitch != graphicsDeviceManager.HardwareModeSwitch)
             {
-                int fullscreenFlag = m_game.GraphicsDeviceManager.HardwareModeSwitch ? Sdl.Window.State.Fullscreen : Sdl.Window.State.FullscreenDesktop;
-                Sdl.Window.SetFullscreen(Handle, (m_willBeFullScreen) ? fullscreenFlag : 0);
-                m_hardwareSwitch = m_game.GraphicsDeviceManager.HardwareModeSwitch;
+                int fullscreenFlag = graphicsDeviceManager.HardwareModeSwitch ? Sdl.Window.State.Fullscreen : Sdl.Window.State.FullscreenDesktop;
+                Sdl.Window.SetFullscreen(Handle, m_willBeFullScreen ? fullscreenFlag : 0);
+                m_hardwareSwitch = graphicsDeviceManager.HardwareModeSwitch;
             }
             // If going to exclusive full-screen mode, force the window to minimize on focus loss (Windows only)
             if (CurrentPlatform.OS == OS.Windows)
@@ -192,7 +196,7 @@ namespace Microsoft.Xna.Framework
                 Sdl.SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", m_willBeFullScreen && m_hardwareSwitch ? "1" : "0");
             }
 
-            if (!m_willBeFullScreen || m_game.GraphicsDeviceManager.HardwareModeSwitch)
+            if (!m_willBeFullScreen || graphicsDeviceManager.HardwareModeSwitch)
             {
                 Sdl.Window.SetSize(Handle, clientWidth, clientHeight);
                 m_width = clientWidth;
@@ -239,16 +243,19 @@ namespace Microsoft.Xna.Framework
 
         public void ClientResize(int width, int height)
         {
+            GraphicsDevice graphicsDevice = m_graphicsDeviceProvider.Value;
+
+            if (graphicsDevice == null)
+                throw new InvalidOperationException($"{nameof(GraphicsDevice)} has not been initialized yet.");
+
             // SDL reports many resize events even if the Size didn't change.
             // Only call the code below if it actually changed.
-            if (m_game.GraphicsDevice.PresentationParameters.BackBufferWidth == width &&
-                m_game.GraphicsDevice.PresentationParameters.BackBufferHeight == height)
-            {
+            if (graphicsDevice.PresentationParameters.BackBufferWidth == width && graphicsDevice.PresentationParameters.BackBufferHeight == height)
                 return;
-            }
-            m_game.GraphicsDevice.PresentationParameters.BackBufferWidth = width;
-            m_game.GraphicsDevice.PresentationParameters.BackBufferHeight = height;
-            m_game.GraphicsDevice.Viewport = new Viewport(0, 0, width, height);
+
+            graphicsDevice.PresentationParameters.BackBufferWidth = width;
+            graphicsDevice.PresentationParameters.BackBufferHeight = height;
+            graphicsDevice.Viewport = new Viewport(0, 0, width, height);
 
             Sdl.Window.GetSize(Handle, out m_width, out m_height);
 
