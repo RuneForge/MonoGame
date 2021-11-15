@@ -2,10 +2,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-#error GamePlatform constuctor should be refactored so it's parameterless.
-#error GamePlatform.Game property should be refactored out.
-#error GamePlatform.Log method should be removed and logging should be implemented with the Microsoft.Extensions.Logging package.
-
 using System;
 
 using Microsoft.Xna.Framework.Graphics;

@@ -38,6 +38,8 @@ namespace Microsoft.Xna.Framework
         private static TimeSpan s_maxElapsedTime = TimeSpan.FromMilliseconds(500);
         private static Game s_instance = null;
 
+        private readonly IServiceProvider m_serviceProvider;
+        private readonly GameWindow m_gameWindow;
         private readonly SortingFilteringCollection<IUpdateable> m_updateableComponents;
         private readonly SortingFilteringCollection<IDrawable> m_drawableComponents;
         private readonly GameServiceContainer m_services;
@@ -83,12 +85,14 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Creates an instance of the <see cref="Game"/> type.
         /// </summary>
-        public Game()
+        public Game(IServiceProvider serviceProvider, GameWindow gameWindow)
         {
             s_instance = this;
 
             LaunchParameters = new LaunchParameterCollection();
 
+            m_serviceProvider = serviceProvider;
+            m_gameWindow = gameWindow;
             m_services = new GameServiceContainer();
             m_gameTime = new GameTime();
             m_components = new GameComponentCollection();
@@ -111,7 +115,7 @@ namespace Microsoft.Xna.Framework
                 (d, handler) => d.DrawOrderChanged -= handler
                 );
 
-            Platform = GamePlatform.PlatformCreate(this);
+            Platform = GamePlatform.CreatePlatform(serviceProvider, this);
             Platform.Activated += OnActivated;
             Platform.Deactivated += OnDeactivated;
             m_services.AddService(typeof(GamePlatform), Platform);

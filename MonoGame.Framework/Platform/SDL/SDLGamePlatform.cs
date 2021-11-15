@@ -2,12 +2,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-#error SdlGamePlatform constuctor should be refactored so it's parameterless.
-#error SdlGamePlatform.m_game field should be refactored out.
-#error GamePlatform.Log method should be removed and logging should be implemented with the Microsoft.Extensions.Logging package.
-#error Game.Tick method should be called with the event-based approach.
-#error GraphicsDevice.Present method should be called with the event-based approach.
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +28,7 @@ namespace Microsoft.Xna.Framework
 
         #region Constructors
 
-        public SdlGamePlatform(Game game)
+        public SdlGamePlatform(Game game, SdlGameWindow gameWindow)
             : base(game)
         {
             m_game = game;
@@ -67,7 +61,7 @@ namespace Microsoft.Xna.Framework
             Sdl.DisableScreenSaver();
 
             GamePad.InitDatabase();
-            Window = m_gameWindow = new SdlGameWindow(m_game);
+            Window = m_gameWindow = gameWindow;
         }
 
         #endregion
