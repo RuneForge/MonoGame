@@ -236,15 +236,6 @@ namespace Microsoft.Xna.Framework
         public virtual void Present() { }
 
         /// <summary>
-        /// Log the specified Message.
-        /// </summary>
-        /// <param name='Message'>
-        /// 
-        /// </param>
-        [System.Diagnostics.Conditional("DEBUG")]
-        public virtual void Log(string Message) { }
-
-        /// <summary>
         /// Raises the AsyncRunLoopEnded event.  This method must be called by
         /// derived classes when the asynchronous run loop they start has
         /// stopped running.

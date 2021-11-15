@@ -146,11 +146,6 @@ namespace Microsoft.Xna.Framework
             Interlocked.Increment(ref m_isExiting);
         }
 
-        public override void Log(string message)
-        {
-            Console.WriteLine(message);
-        }
-
         protected override void OnMouseVisibleChanged()
         {
             m_gameWindow.SetCursorVisible(m_game.MouseVisible);

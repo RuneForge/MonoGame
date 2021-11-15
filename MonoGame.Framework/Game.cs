@@ -19,7 +19,6 @@ using Windows.ApplicationModel.Activation;
 
 #error Game.Services should be refactored out as well as the field. .NET Standard DI container should be used instead.
 #error Get rid of GameServiceContainer dependency in the ContentManager type.
-#error Get rid of Game.Log method and use .NET Standard logging instead.
 
 namespace Microsoft.Xna.Framework
 {
@@ -750,12 +749,6 @@ namespace Microsoft.Xna.Framework
         }
 
         partial void PlatformConstruct();
-
-        [Conditional("DEBUG")]
-        internal void Log(string message)
-        {
-            if (Platform != null) Platform.Log(message);
-        }
 
         internal void DoUpdate(GameTime gameTime)
         {
