@@ -12,7 +12,7 @@ namespace Microsoft.Xna.Framework.Graphics
         internal void PlatformApplyState(GraphicsDevice device, bool force = false)
         {
             // When rendering offscreen the faces change order.
-            var offscreen = device.IsRenderTargetBound;
+            var offscreen = device.RenderTargetBound;
 
             if (force)
             {
@@ -51,21 +51,21 @@ namespace Microsoft.Xna.Framework.Graphics
             }
 
 #if WINDOWS || DESKTOPGL
-			if (FillMode == FillMode.Solid) 
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            if (FillMode == FillMode.Solid) 
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             else
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 #else
             if (FillMode != FillMode.Solid)
                 throw new NotImplementedException();
 #endif
 
             if (force || this.ScissorTestEnable != device._lastRasterizerState.ScissorTestEnable)
-			{
-			    if (ScissorTestEnable)
-				    GL.Enable(EnableCap.ScissorTest);
-			    else
-				    GL.Disable(EnableCap.ScissorTest);
+            {
+                if (ScissorTestEnable)
+                    GL.Enable(EnableCap.ScissorTest);
+                else
+                    GL.Disable(EnableCap.ScissorTest);
                 GraphicsExtensions.CheckGLError();
                 device._lastRasterizerState.ScissorTestEnable = this.ScissorTestEnable;
             }

@@ -58,7 +58,7 @@ namespace MonoGame.Tests.Graphics
 
             gd.Disposing += (sender, args) =>
             {
-                Assert.IsTrue(gd.IsDisposed);
+                Assert.IsTrue(gd.Disposed);
                 count++;
             };
 
