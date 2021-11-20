@@ -17,9 +17,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 #endif
 
-#error Game.Services should be refactored out as well as the field. .NET Standard DI container should be used instead.
-#error Get rid of GameServiceContainer dependency in the ContentManager type.
-
 namespace Microsoft.Xna.Framework
 {
     /// <summary>
@@ -38,11 +35,9 @@ namespace Microsoft.Xna.Framework
         private static TimeSpan s_maxElapsedTime = TimeSpan.FromMilliseconds(500);
         private static Game s_instance = null;
 
-        private readonly IServiceProvider m_serviceProvider;
         private readonly GameWindow m_gameWindow;
         private readonly SortingFilteringCollection<IUpdateable> m_updateableComponents;
         private readonly SortingFilteringCollection<IDrawable> m_drawableComponents;
-        private readonly GameServiceContainer m_services;
         private readonly GameTime m_gameTime;
         private GameComponentCollection m_components;
         private IGraphicsDeviceManager m_graphicsDeviceManager;
@@ -91,12 +86,10 @@ namespace Microsoft.Xna.Framework
 
             LaunchParameters = new LaunchParameterCollection();
 
-            m_serviceProvider = serviceProvider;
             m_gameWindow = gameWindow;
-            m_services = new GameServiceContainer();
             m_gameTime = new GameTime();
             m_components = new GameComponentCollection();
-            m_contentManager = new ContentManager(m_services);
+            m_contentManager = new ContentManager(serviceProvider);
 
             m_updateableComponents = new SortingFilteringCollection<IUpdateable>(
                 u => u.Enabled,
@@ -118,7 +111,6 @@ namespace Microsoft.Xna.Framework
             Platform = GamePlatform.CreatePlatform(serviceProvider, this);
             Platform.Activated += OnActivated;
             Platform.Deactivated += OnDeactivated;
-            m_services.AddService(typeof(GamePlatform), Platform);
 
             // Calling Update() for first time initializes some systems
             FrameworkDispatcher.Update();
@@ -126,6 +118,9 @@ namespace Microsoft.Xna.Framework
             // Allow some optional per-platform construction to occur too.
             PlatformConstruct();
 
+            GraphicsDeviceManager graphicsDeviceManager = new GraphicsDeviceManager(this);
+            m_graphicsDeviceManager = graphicsDeviceManager;
+            m_graphicsDeviceService = graphicsDeviceManager;
         }
 
         /// <summary>
@@ -146,15 +141,10 @@ namespace Microsoft.Xna.Framework
         public GameComponentCollection Components { get { return m_components; } }
 
         /// <summary>
-        /// Get a container holding service providers attached to this <see cref="Game"/>.
-        /// </summary>
-        public GameServiceContainer Services { get { return m_services; } }
-
-        /// <summary>
         /// The system window that this game is displayed on.
         /// </summary>
         [CLSCompliant(false)]
-        public GameWindow Window { get { return Platform.Window; } }
+        public GameWindow Window { get { return m_gameWindow; } }
 
         /// <summary>
         /// The <see cref="Content.ContentManager"/> of this <see cref="Game"/>.
@@ -177,12 +167,8 @@ namespace Microsoft.Xna.Framework
             get
             {
                 if (m_graphicsDeviceService == null)
-                {
-                    m_graphicsDeviceService = (IGraphicsDeviceService)Services.GetService(typeof(IGraphicsDeviceService));
+                    throw new InvalidOperationException("No Graphics Device Service");
 
-                    if (m_graphicsDeviceService == null)
-                        throw new InvalidOperationException("No Graphics Device Service");
-                }
                 return m_graphicsDeviceService.GraphicsDevice;
             }
         }
@@ -287,16 +273,13 @@ namespace Microsoft.Xna.Framework
         {
             get
             {
-                if (m_graphicsDeviceManager == null)
-                {
-                    m_graphicsDeviceManager = (IGraphicsDeviceManager)Services.GetService(typeof(IGraphicsDeviceManager));
-                }
                 return (GraphicsDeviceManager)m_graphicsDeviceManager;
             }
             set
             {
                 if (m_graphicsDeviceManager != null)
                     throw new InvalidOperationException("GraphicsDeviceManager already registered for this Game object");
+
                 m_graphicsDeviceManager = value;
             }
         }
@@ -622,14 +605,8 @@ namespace Microsoft.Xna.Framework
             // Initialize all existing components
             InitializeExistingComponents();
 
-            m_graphicsDeviceService = (IGraphicsDeviceService)
-                Services.GetService(typeof(IGraphicsDeviceService));
-
-            if (m_graphicsDeviceService != null &&
-                m_graphicsDeviceService.GraphicsDevice != null)
-            {
+            if (m_graphicsDeviceService != null && m_graphicsDeviceService.GraphicsDevice != null)
                 LoadContent();
-            }
         }
 
         /// <summary>
@@ -879,7 +856,6 @@ namespace Microsoft.Xna.Framework
                     {
                         Platform.Activated -= OnActivated;
                         Platform.Deactivated -= OnDeactivated;
-                        m_services.RemoveService(typeof(GamePlatform));
 
                         Platform.Dispose();
                         Platform = null;
