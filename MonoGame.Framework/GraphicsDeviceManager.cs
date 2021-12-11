@@ -3,6 +3,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 
@@ -22,7 +23,7 @@ namespace Microsoft.Xna.Framework
         private SurfaceFormat _preferredBackBufferFormat;
         private DepthFormat _preferredDepthStencilFormat;
         private bool _preferMultiSampling;
-        private DisplayOrientation _supportedOrientations;
+        private DisplayOrientations _supportedOrientations;
         private bool _synchronizedWithVerticalRetrace = true;
         private bool _drawBegun;
         private bool _disposed;
@@ -59,14 +60,14 @@ namespace Microsoft.Xna.Framework
 
             _game = game;
 
-            _supportedOrientations = DisplayOrientation.Default;
+            _supportedOrientations = DisplayOrientations.Default;
             _preferredBackBufferFormat = SurfaceFormat.Color;
             _preferredDepthStencilFormat = DepthFormat.Depth24;
             _synchronizedWithVerticalRetrace = true;
 
             // Assume the window client size as the default back 
             // buffer resolution in the landscape orientation.
-            var clientBounds = _game.Window.ClientBounds;
+            Rectangle clientBounds = _game.Window.ClientBounds;
             if (clientBounds.Width >= clientBounds.Height)
             {
                 _preferredBackBufferWidth = clientBounds.Width;
@@ -87,13 +88,6 @@ namespace Microsoft.Xna.Framework
 
             // Let the plaform optionally overload construction defaults.
             PlatformConstruct();
-
-            if (_game.Services.GetService(typeof(IGraphicsDeviceManager)) != null)
-                throw new ArgumentException("A graphics device manager is already registered.  The graphics device manager cannot be changed once it is set.");
-            _game.graphicsDeviceManager = this;
-
-            _game.Services.AddService(typeof(IGraphicsDeviceManager), this);
-            _game.Services.AddService(typeof(IGraphicsDeviceService), this);
         }
 
         ~GraphicsDeviceManager()
@@ -111,7 +105,7 @@ namespace Microsoft.Xna.Framework
                 if (!_initialized)
                     Initialize();
 
-                var gdi = DoPreparingDeviceSettings();
+                GraphicsDeviceInformation gdi = DoPreparingDeviceSettings();
                 CreateDevice(gdi);
             }
             catch (NoSuitableGraphicsDeviceException)
@@ -129,11 +123,11 @@ namespace Microsoft.Xna.Framework
             if (_graphicsDevice != null)
                 return;
 
-            _graphicsDevice = new GraphicsDevice(gdi.Adapter, gdi.GraphicsProfile, this.PreferHalfPixelOffset, gdi.PresentationParameters);
+            _graphicsDevice = new GraphicsDevice(gdi.Adapter, gdi.GraphicsProfile, PreferHalfPixelOffset, gdi.PresentationParameters);
             _shouldApplyChanges = false;
 
             // hook up reset events
-            GraphicsDevice.DeviceReset     += (sender, args) => OnDeviceReset(args);
+            GraphicsDevice.DeviceReset += (sender, args) => OnDeviceReset(args);
             GraphicsDevice.DeviceResetting += (sender, args) => OnDeviceResetting(args);
 
             // update the touchpanel display size when the graphicsdevice is reset
@@ -237,14 +231,14 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         private GraphicsDeviceInformation DoPreparingDeviceSettings()
         {
-            var gdi = new GraphicsDeviceInformation();
+            GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
             PrepareGraphicsDeviceInformation(gdi);
-            var preparingDeviceSettingsHandler = PreparingDeviceSettings;
+            EventHandler<PreparingDeviceSettingsEventArgs> preparingDeviceSettingsHandler = PreparingDeviceSettings;
 
             if (preparingDeviceSettingsHandler != null)
             {
                 // this allows users to overwrite settings through the argument
-                var args = new PreparingDeviceSettingsEventArgs(gdi);
+                PreparingDeviceSettingsEventArgs args = new PreparingDeviceSettingsEventArgs(gdi);
                 preparingDeviceSettingsHandler(this, args);
 
                 if (gdi.PresentationParameters == null || gdi.Adapter == null)
@@ -320,7 +314,7 @@ namespace Microsoft.Xna.Framework
         {
             gdi.Adapter = GraphicsAdapter.DefaultAdapter;
             gdi.GraphicsProfile = GraphicsProfile;
-            var pp = new PresentationParameters();
+            PresentationParameters pp = new PresentationParameters();
             PreparePresentationParameters(pp);
             gdi.PresentationParameters = pp;
         }
@@ -346,7 +340,7 @@ namespace Microsoft.Xna.Framework
 
             // populates a gdi with settings in this gdm and allows users to override them with
             // PrepareDeviceSettings event this information should be applied to the GraphicsDevice
-            var gdi = DoPreparingDeviceSettings();
+            GraphicsDeviceInformation gdi = DoPreparingDeviceSettings();
 
             if (gdi.GraphicsProfile != GraphicsDevice.GraphicsProfile)
             {
@@ -372,7 +366,7 @@ namespace Microsoft.Xna.Framework
         {
             _game.Window.SetSupportedOrientations(_supportedOrientations);
 
-            var presentationParameters = new PresentationParameters();
+            PresentationParameters presentationParameters = new PresentationParameters();
             PreparePresentationParameters(presentationParameters);
 
             // Allow for any per-platform changes to the presentation.
@@ -457,7 +451,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public bool HardwareModeSwitch
         {
-            get { return _hardwareModeSwitch;}
+            get { return _hardwareModeSwitch; }
             set
             {
                 _shouldApplyChanges = true;
@@ -484,7 +478,7 @@ namespace Microsoft.Xna.Framework
             get { return _preferHalfPixelOffset; }
             set
             {
-                if (this.GraphicsDevice != null)
+                if (GraphicsDevice != null)
                     throw new InvalidOperationException("Setting PreferHalfPixelOffset is not allowed after the creation of GraphicsDevice.");
                 _preferHalfPixelOffset = value;
             }
@@ -620,7 +614,7 @@ namespace Microsoft.Xna.Framework
         /// When called at startup this will automatically apply the supported orientations during initialization.  If
         /// set after startup you must call ApplyChanges() for the supported orientations to be changed.
         /// </remarks>
-        public DisplayOrientation SupportedOrientations
+        public DisplayOrientations SupportedOrientations
         {
             get
             {

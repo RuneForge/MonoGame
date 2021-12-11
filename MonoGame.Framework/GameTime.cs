@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Indicates whether the <see cref="Game"/> is running slowly.
         ///
-        /// This flag is set to <c>true</c> when <see cref="Game.IsFixedTimeStep"/> is set to <c>true</c>
+        /// This flag is set to <c>true</c> when <see cref="Game.FixedTimeStep"/> is set to <c>true</c>
         /// and a tick of the game loop takes longer than <see cref="Game.TargetElapsedTime"/> for
         /// a few frames in a row.
         /// </summary>
@@ -61,12 +61,11 @@ namespace Microsoft.Xna.Framework
         /// <param name="totalRealTime">The total game time elapsed since the start of the <see cref="Game"/>.</param>
         /// <param name="elapsedRealTime">The time elapsed since the last call to <see cref="Game.Update"/>.</param>
         /// <param name="isRunningSlowly">A value indicating if the <see cref="Game"/> is running slowly.</param>
-		public GameTime (TimeSpan totalRealTime, TimeSpan elapsedRealTime, bool isRunningSlowly)
-		{
+        public GameTime (TimeSpan totalRealTime, TimeSpan elapsedRealTime, bool isRunningSlowly)
+        {
             TotalGameTime = totalRealTime;
             ElapsedGameTime = elapsedRealTime;
-		    IsRunningSlowly = isRunningSlowly;
-		}
+            IsRunningSlowly = isRunningSlowly;
+        }
     }
 }
-

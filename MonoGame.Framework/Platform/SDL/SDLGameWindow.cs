@@ -2,29 +2,105 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+
 using System;
 using System.IO;
 using System.Reflection;
+
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+
 using MonoGame.Framework.Utilities;
 
 namespace Microsoft.Xna.Framework
 {
     internal class SdlGameWindow : GameWindow, IDisposable
     {
-        public override bool AllowUserResizing
-        {
-            get { return !IsBorderless && _resizable; }
-            set
-            {
-                if (Sdl.Patch > 4)
-                    Sdl.Window.SetResizable(_handle, value);
-                else
-                    throw new Exception("SDL 2.0.4 does not support changing resizable parameter of the window after it's already been created, please use a newer version of it.");
+        #region Fields
 
-                _resizable = value;
+        public static GameWindow Instance;
+
+        private readonly Lazy<GraphicsDeviceManager> m_graphicsDeviceManagerProvider;
+        private readonly Lazy<GraphicsDevice> m_graphicsDeviceProvider;
+        private readonly IntPtr m_icon;
+        private IntPtr m_handle;
+        private bool m_disposed;
+        private bool m_resizable;
+        private bool m_borderless;
+        private bool m_willBeFullScreen;
+        private bool m_mouseVisible;
+        private bool m_hardwareSwitch;
+        private string m_screenDeviceName;
+        private int m_width;
+        private int m_height;
+        private bool m_wasMoved;
+        private bool m_supressMoved;
+
+        public uint? Id;
+        public bool IsFullScreen;
+
+        #endregion
+
+        #region Constructors, Destructors
+
+        public SdlGameWindow(Lazy<GraphicsDeviceManager> graphicsDeviceManagerProvider, Lazy<GraphicsDevice> graphicsDeviceProvider)
+        {
+            m_graphicsDeviceManagerProvider = graphicsDeviceManagerProvider;
+            m_graphicsDeviceProvider = graphicsDeviceProvider;
+
+            m_screenDeviceName = "";
+
+            Instance = this;
+
+            m_width = GraphicsDeviceManager.DefaultBackBufferWidth;
+            m_height = GraphicsDeviceManager.DefaultBackBufferHeight;
+
+            Sdl.SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
+            Sdl.SetHint("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1");
+
+            // when running NUnit tests entry assembly can be null
+            if (Assembly.GetEntryAssembly() != null)
+            {
+                using (
+                    Stream stream =
+                        Assembly.GetEntryAssembly().GetManifestResourceStream(Assembly.GetEntryAssembly().EntryPoint.DeclaringType.Namespace + ".Icon.bmp") ??
+                        Assembly.GetEntryAssembly().GetManifestResourceStream("Icon.bmp") ??
+                        Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoGame.bmp"))
+                {
+                    if (stream != null)
+                        using (BinaryReader br = new BinaryReader(stream))
+                        {
+                            try
+                            {
+                                IntPtr src = Sdl.RwFromMem(br.ReadBytes((int)stream.Length), (int)stream.Length);
+                                m_icon = Sdl.LoadBMP_RW(src, 1);
+                            }
+                            catch { }
+                        }
+                }
             }
+
+            m_handle = Sdl.Window.Create("", 0, 0,
+                GraphicsDeviceManager.DefaultBackBufferWidth, GraphicsDeviceManager.DefaultBackBufferHeight,
+                Sdl.Window.State.Hidden | Sdl.Window.State.FullscreenDesktop);
+        }
+
+        ~SdlGameWindow()
+        {
+            Dispose(false);
+        }
+
+        #endregion
+
+        #region Manually-Implemented Properties
+
+        public override IntPtr Handle
+        {
+            get { return m_handle; }
+        }
+
+        public override string ScreenDeviceName
+        {
+            get { return m_screenDeviceName; }
         }
 
         public override Rectangle ClientBounds
@@ -33,7 +109,26 @@ namespace Microsoft.Xna.Framework
             {
                 int x = 0, y = 0;
                 Sdl.Window.GetPosition(Handle, out x, out y);
-                return new Rectangle(x, y, _width, _height);
+                return new Rectangle(x, y, m_width, m_height);
+            }
+        }
+
+        public override DisplayOrientations CurrentOrientation
+        {
+            get { return DisplayOrientations.Default; }
+        }
+
+        public override bool AllowUserResizing
+        {
+            get { return !Borderless && m_resizable; }
+            set
+            {
+                if (Sdl.Patch > 4)
+                    Sdl.Window.SetResizable(m_handle, value);
+                else
+                    throw new Exception("SDL 2.0.4 does not support changing resizable parameter of the window after it's already been created, please use a newer version of it.");
+
+                m_resizable = value;
             }
         }
 
@@ -51,100 +146,148 @@ namespace Microsoft.Xna.Framework
             set
             {
                 Sdl.Window.SetPosition(Handle, value.X, value.Y);
-                _wasMoved = true;
+                m_wasMoved = true;
             }
         }
 
-        public override DisplayOrientation CurrentOrientation
+        public override bool Borderless
         {
-            get { return DisplayOrientation.Default; }
-        }
-
-        public override IntPtr Handle
-        {
-            get { return _handle; }
-        }
-
-        public override string ScreenDeviceName
-        {
-            get { return _screenDeviceName; }
-        }
-
-        public override bool IsBorderless
-        {
-            get { return _borderless; }
+            get { return m_borderless; }
             set
             {
-                Sdl.Window.SetBordered(_handle, value ? 0 : 1);
-                _borderless = value;
+                Sdl.Window.SetBordered(m_handle, value ? 0 : 1);
+                m_borderless = value;
             }
         }
 
-        public static GameWindow Instance;
-        public uint? Id;
-        public bool IsFullScreen;
+        #endregion
 
-        internal readonly Game _game;
-        private IntPtr _handle, _icon;
-        private bool _disposed;
-        private bool _resizable, _borderless, _willBeFullScreen, _mouseVisible, _hardwareSwitch;
-        private string _screenDeviceName;
-        private int _width, _height;
-        private bool _wasMoved, _supressMoved;
+        #region Methods
 
-        public SdlGameWindow(Game game)
+        public override void BeginScreenDeviceChange(bool willBeFullScreen)
         {
-            _game = game;
-            _screenDeviceName = "";
+            m_willBeFullScreen = willBeFullScreen;
+        }
 
-            Instance = this;
+        public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
+        {
+            GraphicsDeviceManager graphicsDeviceManager = m_graphicsDeviceManagerProvider.Value;
 
-            _width = GraphicsDeviceManager.DefaultBackBufferWidth;
-            _height = GraphicsDeviceManager.DefaultBackBufferHeight;
+            if (graphicsDeviceManager == null)
+                throw new InvalidOperationException($"{nameof(GraphicsDeviceManager)} has not been created yet.");
 
-            Sdl.SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
-            Sdl.SetHint("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1");
+            m_screenDeviceName = screenDeviceName;
 
-            // when running NUnit tests entry assembly can be null
-            if (Assembly.GetEntryAssembly() != null)
+            Rectangle prevBounds = ClientBounds;
+            int displayIndex = Sdl.Window.GetDisplayIndex(Handle);
+
+            Sdl.Rectangle displayRect;
+            Sdl.Display.GetBounds(displayIndex, out displayRect);
+
+            if (m_willBeFullScreen != IsFullScreen || m_hardwareSwitch != graphicsDeviceManager.HardwareModeSwitch)
             {
-                using (
-                    var stream =
-                        Assembly.GetEntryAssembly().GetManifestResourceStream(Assembly.GetEntryAssembly().EntryPoint.DeclaringType.Namespace + ".Icon.bmp") ??
-                        Assembly.GetEntryAssembly().GetManifestResourceStream("Icon.bmp") ??
-                        Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoGame.bmp"))
-                {
-                    if (stream != null)
-                        using (var br = new BinaryReader(stream))
-                        {
-                            try
-                            {
-                                var src = Sdl.RwFromMem(br.ReadBytes((int)stream.Length), (int)stream.Length);
-                                _icon = Sdl.LoadBMP_RW(src, 1);
-                            }
-                            catch { }
-                        }
-                }
+                int fullscreenFlag = graphicsDeviceManager.HardwareModeSwitch ? Sdl.Window.State.Fullscreen : Sdl.Window.State.FullscreenDesktop;
+                Sdl.Window.SetFullscreen(Handle, m_willBeFullScreen ? fullscreenFlag : 0);
+                m_hardwareSwitch = graphicsDeviceManager.HardwareModeSwitch;
+            }
+            // If going to exclusive full-screen mode, force the window to minimize on focus loss (Windows only)
+            if (CurrentPlatform.OS == OS.Windows)
+            {
+                Sdl.SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", m_willBeFullScreen && m_hardwareSwitch ? "1" : "0");
             }
 
-            _handle = Sdl.Window.Create("", 0, 0,
-                GraphicsDeviceManager.DefaultBackBufferWidth, GraphicsDeviceManager.DefaultBackBufferHeight,
-                Sdl.Window.State.Hidden | Sdl.Window.State.FullscreenDesktop);
+            if (!m_willBeFullScreen || graphicsDeviceManager.HardwareModeSwitch)
+            {
+                Sdl.Window.SetSize(Handle, clientWidth, clientHeight);
+                m_width = clientWidth;
+                m_height = clientHeight;
+            }
+            else
+            {
+                m_width = displayRect.Width;
+                m_height = displayRect.Height;
+            }
+
+            int ignore, minx = 0, miny = 0;
+            Sdl.Window.GetBorderSize(m_handle, out miny, out minx, out ignore, out ignore);
+
+            int centerX = Math.Max(prevBounds.X + ((prevBounds.Width - clientWidth) / 2), minx);
+            int centerY = Math.Max(prevBounds.Y + ((prevBounds.Height - clientHeight) / 2), miny);
+
+            if (IsFullScreen && !m_willBeFullScreen)
+            {
+                // We need to get the display information again in case
+                // the resolution of it was changed.
+                Sdl.Display.GetBounds(displayIndex, out displayRect);
+
+                // This centering only occurs when exiting fullscreen
+                // so it should center the window on the current display.
+                centerX = displayRect.X + displayRect.Width / 2 - clientWidth / 2;
+                centerY = displayRect.Y + displayRect.Height / 2 - clientHeight / 2;
+            }
+
+            // If this window is resizable, there is a bug in SDL 2.0.4 where
+            // after the window gets resized, window position information
+            // becomes wrong (for me it always returned 10 8). Solution is
+            // to not try and set the window position because it will be wrong.
+            if ((Sdl.Patch > 4 || !AllowUserResizing) && !m_wasMoved)
+                Sdl.Window.SetPosition(Handle, centerX, centerY);
+
+            if (IsFullScreen != m_willBeFullScreen)
+                OnClientSizeChanged();
+
+            IsFullScreen = m_willBeFullScreen;
+
+            m_supressMoved = true;
         }
+
+        public void ClientResize(int width, int height)
+        {
+            GraphicsDevice graphicsDevice = m_graphicsDeviceProvider.Value;
+
+            if (graphicsDevice == null)
+                throw new InvalidOperationException($"{nameof(GraphicsDevice)} has not been initialized yet.");
+
+            // SDL reports many resize events even if the Size didn't change.
+            // Only call the code below if it actually changed.
+            if (graphicsDevice.PresentationParameters.BackBufferWidth == width && graphicsDevice.PresentationParameters.BackBufferHeight == height)
+                return;
+
+            graphicsDevice.PresentationParameters.BackBufferWidth = width;
+            graphicsDevice.PresentationParameters.BackBufferHeight = height;
+            graphicsDevice.Viewport = new Viewport(0, 0, width, height);
+
+            Sdl.Window.GetSize(Handle, out m_width, out m_height);
+
+            OnClientSizeChanged();
+        }
+
+        public void SetCursorVisible(bool visible)
+        {
+            m_mouseVisible = visible;
+            Sdl.Mouse.ShowCursor(visible ? 1 : 0);
+        }
+
+        protected override void OnBeforeTitleSet(string title)
+        {
+            Sdl.Window.SetTitle(m_handle, title);
+        }
+
+        protected internal override void SetSupportedOrientations(DisplayOrientations orientations) { }
 
         internal void CreateWindow()
         {
-            var initflags =
+            int initflags =
                 Sdl.Window.State.OpenGL |
                 Sdl.Window.State.Hidden |
                 Sdl.Window.State.InputFocus |
                 Sdl.Window.State.MouseFocus;
 
-            if (_handle != IntPtr.Zero)
-                Sdl.Window.Destroy(_handle);
+            if (m_handle != IntPtr.Zero)
+                Sdl.Window.Destroy(m_handle);
 
-            var winx = Sdl.Window.PosCentered;
-            var winy = Sdl.Window.PosCentered;
+            int winx = Sdl.Window.PosCentered;
+            int winy = Sdl.Window.PosCentered;
 
             // if we are on Linux, start on the current screen
             if (CurrentPlatform.OS == OS.Linux)
@@ -153,34 +296,40 @@ namespace Microsoft.Xna.Framework
                 winy |= GetMouseDisplay();
             }
 
-            _handle = Sdl.Window.Create(AssemblyHelper.GetDefaultWindowTitle(),
-                winx, winy, _width, _height, initflags);
+            m_handle = Sdl.Window.Create(AssemblyHelper.GetDefaultWindowTitle(),
+                winx, winy, m_width, m_height, initflags);
 
-            Id = Sdl.Window.GetWindowId(_handle);
+            Id = Sdl.Window.GetWindowId(m_handle);
 
-            if (_icon != IntPtr.Zero)
-                Sdl.Window.SetIcon(_handle, _icon);
+            if (m_icon != IntPtr.Zero)
+                Sdl.Window.SetIcon(m_handle, m_icon);
 
-            Sdl.Window.SetBordered(_handle, _borderless ? 0 : 1);
-            Sdl.Window.SetResizable(_handle, _resizable);
+            Sdl.Window.SetBordered(m_handle, m_borderless ? 0 : 1);
+            Sdl.Window.SetResizable(m_handle, m_resizable);
 
-            SetCursorVisible(_mouseVisible);
+            SetCursorVisible(m_mouseVisible);
         }
 
-        ~SdlGameWindow()
+        internal void OnWindowMoved()
         {
-            Dispose(false);
+            if (m_supressMoved)
+            {
+                m_supressMoved = false;
+                return;
+            }
+
+            m_wasMoved = true;
         }
 
         private static int GetMouseDisplay()
         {
-            var rect = new Sdl.Rectangle();
+            Sdl.Rectangle rect = new Sdl.Rectangle();
 
             int x, y;
             Sdl.Mouse.GetGlobalState(out x, out y);
 
-            var displayCount = Sdl.Display.GetNumVideoDisplays();
-            for (var i = 0; i < displayCount; i++)
+            int displayCount = Sdl.Display.GetNumVideoDisplays();
+            for (int i = 0; i < displayCount; i++)
             {
                 Sdl.Display.GetBounds(i, out rect);
 
@@ -194,121 +343,9 @@ namespace Microsoft.Xna.Framework
             return 0;
         }
 
-        public void SetCursorVisible(bool visible)
-        {
-            _mouseVisible = visible;
-            Sdl.Mouse.ShowCursor(visible ? 1 : 0);
-        }
+        #endregion
 
-        public override void BeginScreenDeviceChange(bool willBeFullScreen)
-        {
-            _willBeFullScreen = willBeFullScreen;
-        }
-
-        public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
-        {
-            _screenDeviceName = screenDeviceName;
-
-            var prevBounds = ClientBounds;
-            var displayIndex = Sdl.Window.GetDisplayIndex(Handle);
-
-            Sdl.Rectangle displayRect;
-            Sdl.Display.GetBounds(displayIndex, out displayRect);
-
-            if (_willBeFullScreen != IsFullScreen || _hardwareSwitch != _game.graphicsDeviceManager.HardwareModeSwitch)
-            {
-                var fullscreenFlag = _game.graphicsDeviceManager.HardwareModeSwitch ? Sdl.Window.State.Fullscreen : Sdl.Window.State.FullscreenDesktop;
-                Sdl.Window.SetFullscreen(Handle, (_willBeFullScreen) ? fullscreenFlag : 0);
-                _hardwareSwitch = _game.graphicsDeviceManager.HardwareModeSwitch;
-            }
-            // If going to exclusive full-screen mode, force the window to minimize on focus loss (Windows only)
-            if (CurrentPlatform.OS == OS.Windows)
-            {
-                Sdl.SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", _willBeFullScreen && _hardwareSwitch ? "1" : "0");
-            }
-
-            if (!_willBeFullScreen || _game.graphicsDeviceManager.HardwareModeSwitch)
-            {
-                Sdl.Window.SetSize(Handle, clientWidth, clientHeight);
-                _width = clientWidth;
-                _height = clientHeight;
-            }
-            else
-            {
-                _width = displayRect.Width;
-                _height = displayRect.Height;
-            }
-
-            int ignore, minx = 0, miny = 0;
-            Sdl.Window.GetBorderSize(_handle, out miny, out minx, out ignore, out ignore);
-
-            var centerX = Math.Max(prevBounds.X + ((prevBounds.Width - clientWidth) / 2), minx);
-            var centerY = Math.Max(prevBounds.Y + ((prevBounds.Height - clientHeight) / 2), miny);
-
-            if (IsFullScreen && !_willBeFullScreen)
-            {
-                // We need to get the display information again in case
-                // the resolution of it was changed.
-                Sdl.Display.GetBounds (displayIndex, out displayRect);
-
-                // This centering only occurs when exiting fullscreen
-                // so it should center the window on the current display.
-                centerX = displayRect.X + displayRect.Width / 2 - clientWidth / 2;
-                centerY = displayRect.Y + displayRect.Height / 2 - clientHeight / 2;
-            }
-
-            // If this window is resizable, there is a bug in SDL 2.0.4 where
-            // after the window gets resized, window position information
-            // becomes wrong (for me it always returned 10 8). Solution is
-            // to not try and set the window position because it will be wrong.
-            if ((Sdl.Patch > 4 || !AllowUserResizing) && !_wasMoved)
-                Sdl.Window.SetPosition(Handle, centerX, centerY);
-
-            if (IsFullScreen != _willBeFullScreen)
-                OnClientSizeChanged();
-
-            IsFullScreen = _willBeFullScreen;
-
-            _supressMoved = true;
-        }
-
-        internal void Moved()
-        {
-            if (_supressMoved)
-            {
-                _supressMoved = false;
-                return;
-            }
-
-            _wasMoved = true;
-        }
-
-        public void ClientResize(int width, int height)
-        {
-            // SDL reports many resize events even if the Size didn't change.
-            // Only call the code below if it actually changed.
-            if (_game.GraphicsDevice.PresentationParameters.BackBufferWidth == width &&
-                _game.GraphicsDevice.PresentationParameters.BackBufferHeight == height) {
-                return;
-            }
-            _game.GraphicsDevice.PresentationParameters.BackBufferWidth = width;
-            _game.GraphicsDevice.PresentationParameters.BackBufferHeight = height;
-            _game.GraphicsDevice.Viewport = new Viewport(0, 0, width, height);
-
-            Sdl.Window.GetSize(Handle, out _width, out _height);
-
-            OnClientSizeChanged();
-        }
-
-        protected internal override void SetSupportedOrientations(DisplayOrientation orientations)
-        {
-            // Nothing to do here
-        }
-
-        protected override void SetTitle(string title)
-        {
-            Sdl.Window.SetTitle(_handle, title);
-        }
+        #region IDisposable implementation
 
         public void Dispose()
         {
@@ -318,16 +355,18 @@ namespace Microsoft.Xna.Framework
 
         protected virtual void Dispose(bool disposing)
         {
-            if (_disposed)
+            if (m_disposed)
                 return;
 
-            Sdl.Window.Destroy(_handle);
-            _handle = IntPtr.Zero;
+            Sdl.Window.Destroy(m_handle);
+            m_handle = IntPtr.Zero;
 
-            if (_icon != IntPtr.Zero)
-                Sdl.FreeSurface(_icon);
+            if (m_icon != IntPtr.Zero)
+                Sdl.FreeSurface(m_icon);
 
-            _disposed = true;
+            m_disposed = true;
         }
+
+        #endregion
     }
 }

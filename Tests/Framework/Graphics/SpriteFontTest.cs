@@ -74,29 +74,29 @@ using Microsoft.Xna.Framework.Graphics;
 using NUnit.Framework;
 
 namespace MonoGame.Tests.Graphics {
-	[TestFixture]
-	class SpriteFontTest : GraphicsDeviceTestFixtureBase {
+    [TestFixture]
+    class SpriteFontTest : GraphicsDeviceTestFixtureBase {
 
-		private SpriteBatch _spriteBatch;
-		private SpriteFont _defaultFont;
+        private SpriteBatch _spriteBatch;
+        private SpriteFont _defaultFont;
 
-		[SetUp]
-		public override void SetUp ()
-		{
-			base.SetUp ();
+        [SetUp]
+        public override void SetUp ()
+        {
+            base.SetUp ();
 
             _spriteBatch = new SpriteBatch (gd);
             _defaultFont = content.Load<SpriteFont> (Paths.Font ("Default"));
-		}
+        }
 
-	    [TearDown]
-	    public override void TearDown()
-	    {
+        [TearDown]
+        public override void TearDown()
+        {
             _spriteBatch.Dispose();
-	        _spriteBatch = null;
+            _spriteBatch = null;
 
-	        base.TearDown();
-	    }
+            base.TearDown();
+        }
 
         [TestCase("Default", "The quick brown fox jumps over the lazy dog. 1234567890", 605, 21)]
         [TestCase("Default", "The quick brown fox jumps\nover the lazy dog.\n1234567890", 275, 59)]
@@ -124,15 +124,15 @@ namespace MonoGame.Tests.Graphics {
         [TestCase("SegoeKeycaps", "!", 16, 20)] // LSB=1, W=15, RSB=0
         public void MeasureString_returns_correct_values(string fontName, string text, float width, float height)
         {
-            var font = game.Content.Load<SpriteFont>(Paths.Font(fontName));
+            var font = game.ContentManager.Load<SpriteFont>(Paths.Font(fontName));
             var actualSize = font.MeasureString(text);
             var expectedSize = new Vector2(width, height);
             Assert.That(actualSize, Is.EqualTo(expectedSize).Using(Vector2Comparer.Epsilon));
         }
 
-		[Test]
-		public void Plain ()
-		{
+        [Test]
+        public void Plain ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -145,11 +145,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Rotated ()
-		{
+        [Test]
+        public void Rotated ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -170,11 +170,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Scaled ()
-		{
+        [Test]
+        public void Scaled ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -195,13 +195,13 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[TestCase(SpriteEffects.FlipHorizontally)]
-		[TestCase(SpriteEffects.FlipVertically)]
-		[TestCase(SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically)]
-		public void Draw_with_SpriteEffects (SpriteEffects effects)
-		{
+        [TestCase(SpriteEffects.FlipHorizontally)]
+        [TestCase(SpriteEffects.FlipVertically)]
+        [TestCase(SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically)]
+        public void Draw_with_SpriteEffects (SpriteEffects effects)
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -222,11 +222,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Origins_rotated ()
-		{
+        [Test]
+        public void Origins_rotated ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -271,11 +271,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Origins_scaled ()
-		{
+        [Test]
+        public void Origins_scaled ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -320,11 +320,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
         
-		[Test]
-		public void Draw_with_LayerDepth()
-		{
+        [Test]
+        public void Draw_with_LayerDepth()
+        {
             PrepareFrameCapture();
 
             var text = "depth";
@@ -459,11 +459,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End();
 
             CheckFrames();
-		}
+        }
         
-		[Test]
-		public void Hullabaloo ()
-		{
+        [Test]
+        public void Hullabaloo ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -474,11 +474,11 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Hullabaloo2 ()
-		{
+        [Test]
+        public void Hullabaloo2 ()
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -489,9 +489,9 @@ namespace MonoGame.Tests.Graphics {
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
-		
+        
         [TestCase("The quick brown fox jumps over the lazy dog. 1234567890", TestName = "Multiline_noNewline")]
         [TestCase("The quick brown fox jumps\nover the lazy dog.\n1234567890", TestName = "Multiline_Newline")]
         [TestCase("The quick brown fox jumps over the lazy dog.\r1234567890", TestName = "Multiline_CarriageReturn")]
@@ -501,8 +501,8 @@ So he wrote a routine
 To ask 'What's it all mean?'
 But the answer was still '42'.
                 R Humphries, Sutton Coldfield", TestName = "Multiline_verbatimString")]
-		public void Multiline (string text)
-		{
+        public void Multiline (string text)
+        {
             PrepareFrameCapture();
 
             _spriteBatch.Begin ();
@@ -540,14 +540,14 @@ But the answer was still '42'.
 
             Similarity = 0.985f;
             CheckFrames();
-		}
+        }
 
-		[Test]
-		public void Font_spacing_is_respected ()
-		{
+        [Test]
+        public void Font_spacing_is_respected ()
+        {
             PrepareFrameCapture();
-			// DataFont has a non-zero Spacing property.
-			var font = content.Load<SpriteFont> (Paths.Font ("DataFont"));
+            // DataFont has a non-zero Spacing property.
+            var font = content.Load<SpriteFont> (Paths.Font ("DataFont"));
             var text = "Now is the time for all good DataFonts";
 
             _spriteBatch.Begin ();
@@ -567,27 +567,27 @@ But the answer was still '42'.
             _spriteBatch.End ();
 
             CheckFrames();
-		}
+        }
 
         [TestCase("The rain in España stays mainly in the plain - now in français")]
         [TestCase("\x1f")]
         [TestCase("\x7f")]
         public void Throws_when_drawing_unavailable_characters(string text)
-		{
+        {
             _spriteBatch.Begin ();
             Assert.Throws<ArgumentException> (() =>
                 _spriteBatch.DrawString (_defaultFont, text, Vector2.Zero, Color.Violet));
             _spriteBatch.End ();
-		}
+        }
 
         [TestCase('ñ')]
         [TestCase((char)127)]
         [TestCase((char)31)]
         public void Throws_when_setting_unavailable_DefaultCharacter(char character)
-		{
+        {
             Assert.Throws<ArgumentException> (() =>
                 _defaultFont.DefaultCharacter = character);
-		}
+        }
 
         [TestCase((char)32)]
         [TestCase((char)63)]
@@ -596,5 +596,5 @@ But the answer was still '42'.
         {
             Assert.DoesNotThrow(() => _defaultFont.DefaultCharacter = character);
         }
-	}
+    }
 }

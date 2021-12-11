@@ -3,28 +3,46 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 
-
 namespace Microsoft.Xna.Framework
 {
-    abstract partial class GamePlatform : IDisposable
+    internal abstract partial class GamePlatform : IDisposable
     {
         #region Fields
 
-        protected TimeSpan _inactiveSleepTime = TimeSpan.FromMilliseconds(20.0);
-        protected bool _needsToResetElapsedTime = false;
-        bool disposed;
+        private bool m_disposed;
+        private bool m_isActive;
+        private bool m_isMouseVisible;
+        private GameWindow m_window;
+
         protected bool InFullScreenMode = false;
-        protected bool IsDisposed { get { return disposed; } }
+        protected bool NeedsToResetElapsedTime = false;
+        protected TimeSpan InactiveSleepTime = TimeSpan.FromMilliseconds(20.0);
 
         #endregion
 
-        #region Construction/Destruction
+        #region Auto-Implemented Properties
 
-		protected GamePlatform(Game game)
+        /// <summary>
+        /// Gets the Game instance that owns this GamePlatform instance.
+        /// </summary>
+        public Game Game { get; private set; }
+
+        /// <summary>
+        /// When implemented in a derived class, reports the default
+        /// GameRunBehavior for this platform.
+        /// </summary>
+        public abstract GameRunBehavior DefaultRunBehavior { get; }
+
+        #endregion
+
+        #region Constructors, Destructors
+
+        protected GamePlatform(Game game)
         {
             if (game == null)
                 throw new ArgumentNullException("game");
@@ -38,65 +56,49 @@ namespace Microsoft.Xna.Framework
 
         #endregion Construction/Destruction
 
-        #region Public Properties
+        #region Manually-Implemented Properties
 
-        /// <summary>
-        /// When implemented in a derived class, reports the default
-        /// GameRunBehavior for this platform.
-        /// </summary>
-        public abstract GameRunBehavior DefaultRunBehavior { get; }
+        protected bool Disposed { get { return m_disposed; } }
 
-        /// <summary>
-        /// Gets the Game instance that owns this GamePlatform instance.
-        /// </summary>
-        public Game Game
+        public bool Active
         {
-            get; private set;
-        }
-
-        private bool _isActive;
-        public bool IsActive
-        {
-            get { return _isActive; }
+            get { return m_isActive; }
             internal set
             {
-                if (_isActive != value)
+                if (m_isActive != value)
                 {
-                    _isActive = value;
-                    EventHelpers.Raise(this, _isActive ? Activated : Deactivated, EventArgs.Empty);
+                    m_isActive = value;
+                    EventHelpers.Raise(this, m_isActive ? Activated : Deactivated, EventArgs.Empty);
                 }
             }
         }
 
-        private bool _isMouseVisible;
-        public bool IsMouseVisible
+        public bool MouseVisible
         {
-            get { return _isMouseVisible; }
+            get { return m_isMouseVisible; }
             set
             {
-                if (_isMouseVisible != value)
+                if (m_isMouseVisible != value)
                 {
-                    _isMouseVisible = value;
-                    OnIsMouseVisibleChanged();
+                    m_isMouseVisible = value;
+                    OnMouseVisibleChanged();
                 }
             }
         }
 
-        private GameWindow _window;
         public GameWindow Window
         {
-            get { return _window; }
-
+            get { return m_window; }
 
             protected set
             {
-                if (_window == null)
+                if (m_window == null)
                 {
                     Mouse.PrimaryWindow = value;
                     TouchPanel.PrimaryWindow = value;
                 }
 
-                _window = value;
+                m_window = value;
             }
         }
 
@@ -104,45 +106,13 @@ namespace Microsoft.Xna.Framework
 
         #region Events
 
-        public event EventHandler<EventArgs> AsyncRunLoopEnded;
         public event EventHandler<EventArgs> Activated;
         public event EventHandler<EventArgs> Deactivated;
-
-        /// <summary>
-        /// Raises the AsyncRunLoopEnded event.  This method must be called by
-        /// derived classes when the asynchronous run loop they start has
-        /// stopped running.
-        /// </summary>
-        protected void RaiseAsyncRunLoopEnded()
-        {
-            EventHelpers.Raise(this, AsyncRunLoopEnded, EventArgs.Empty);
-        }
+        public event EventHandler<EventArgs> AsyncRunLoopEnded;
 
         #endregion Events
 
         #region Methods
-
-        /// <summary>
-        /// Gives derived classes an opportunity to do work before any
-        /// components are initialized.  Note that the base implementation sets
-        /// IsActive to true, so derived classes should either call the base
-        /// implementation or set IsActive to true by their own means.
-        /// </summary>
-        public virtual void BeforeInitialize()
-        {
-            IsActive = true;
-        }
-
-        /// <summary>
-        /// Gives derived classes an opportunity to do work just before the
-        /// run loop is begun.  Implementations may also return false to prevent
-        /// the run loop from starting.
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool BeforeRun()
-        {
-            return true;
-        }
 
         /// <summary>
         /// When implemented in a derived, ends the active run loop.
@@ -192,24 +162,12 @@ namespace Microsoft.Xna.Framework
         public abstract void ExitFullScreen();
 
         /// <summary>
-        /// Gives derived classes an opportunity to modify
-        /// Game.TargetElapsedTime before it is set.
-        /// </summary>
-        /// <param name="value">The proposed new value of TargetElapsedTime.</param>
-        /// <returns>The new value of TargetElapsedTime that will be set.</returns>
-        public virtual TimeSpan TargetElapsedTimeChanging(TimeSpan value)
-        {
-            return value;
-        }
-        /// <summary>
         /// Starts a device transition (windowed to full screen or vice versa).
         /// </summary>
         /// <param name='willBeFullScreen'>
         /// Specifies whether the device will be in full-screen mode upon completion of the change.
         /// </param>
-        public abstract void BeginScreenDeviceChange (
-                 bool willBeFullScreen
-        );
+        public abstract void BeginScreenDeviceChange(bool willBeFullScreen);
 
         /// <summary>
         /// Completes a device transition.
@@ -223,28 +181,67 @@ namespace Microsoft.Xna.Framework
         /// <param name='clientHeight'>
         /// The new height of the game's client window.
         /// </param>
-        public abstract void EndScreenDeviceChange (
-                 string screenDeviceName,
-                 int clientWidth,
-                 int clientHeight
-        );
+        public abstract void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight);
+
+        /// <summary>
+        /// Gives derived classes an opportunity to do work before any
+        /// components are initialized.  Note that the base implementation sets
+        /// IsActive to true, so derived classes should either call the base
+        /// implementation or set IsActive to true by their own means.
+        /// </summary>
+        public virtual void BeforeInitialize()
+        {
+            Active = true;
+        }
+
+        /// <summary>
+        /// Gives derived classes an opportunity to do work just before the
+        /// run loop is begun.  Implementations may also return false to prevent
+        /// the run loop from starting.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool BeforeRun()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Gives derived classes an opportunity to modify
+        /// Game.TargetElapsedTime before it is set.
+        /// </summary>
+        /// <param name="value">The proposed new value of TargetElapsedTime.</param>
+        /// <returns>The new value of TargetElapsedTime that will be set.</returns>
+        public virtual TimeSpan TargetElapsedTimeChanging(TimeSpan value)
+        {
+            return value;
+        }
 
         /// <summary>
         /// Gives derived classes an opportunity to take action after
         /// Game.TargetElapsedTime has been set.
         /// </summary>
-        public virtual void TargetElapsedTimeChanged() {}
+        public virtual void TargetElapsedTimeChanged() { }
 
         /// <summary>
         /// MSDN: Use this method if your game is recovering from a slow-running state, and ElapsedGameTime is too large to be useful.
         /// Frame timing is generally handled by the Game class, but some platforms still handle it elsewhere. Once all platforms
         /// rely on the Game class's functionality, this method and any overrides should be removed.
         /// </summary>
-        public virtual void ResetElapsedTime() {}
+        public virtual void ResetElapsedTime() { }
 
         public virtual void Present() { }
 
-        protected virtual void OnIsMouseVisibleChanged() {}
+        /// <summary>
+        /// Raises the AsyncRunLoopEnded event.  This method must be called by
+        /// derived classes when the asynchronous run loop they start has
+        /// stopped running.
+        /// </summary>
+        protected void RaiseAsyncRunLoopEnded()
+        {
+            EventHelpers.Raise(this, AsyncRunLoopEnded, EventArgs.Empty);
+        }
+
+        protected virtual void OnMouseVisibleChanged() { }
 
         /// <summary>
         /// Called by the GraphicsDeviceManager to notify the platform
@@ -271,26 +268,15 @@ namespace Microsoft.Xna.Framework
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!m_disposed)
             {
                 Mouse.PrimaryWindow = null;
                 TouchPanel.PrimaryWindow = null;
 
-                disposed = true;
+                m_disposed = true;
             }
         }
-		
-		/// <summary>
-		/// Log the specified Message.
-		/// </summary>
-		/// <param name='Message'>
-		/// 
-		/// </param>
-		[System.Diagnostics.Conditional("DEBUG")]
-		public virtual void Log(string Message) {}		
-			
 
         #endregion
     }
 }
-

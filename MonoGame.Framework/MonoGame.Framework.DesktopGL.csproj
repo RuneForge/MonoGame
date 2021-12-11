@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
     <DefineConstants>OPENGL;OPENAL;XNADESIGNPROVIDED;LINUX;DESKTOPGL;SUPPORTS_EFX;NETSTANDARD;STBSHARP_INTERNAL</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Description>The MonoGame runtime supporting Windows, Linux and macOS using SDL2 and OpenGL.</Description>
@@ -43,8 +44,8 @@
     <Compile Include="Platform\Graphics\OpenGL.Common.cs" />
     <Compile Include="Platform\Graphics\Texture2D.StbSharp.cs" />    
     <Compile Include="Platform\SDL\SDL2.cs" />
-    <Compile Include="Platform\SDL\SDLGamePlatform.cs" />
-    <Compile Include="Platform\SDL\SDLGameWindow.cs" />
+    <Compile Include="Platform\SDL\SdlGamePlatform.cs" />
+    <Compile Include="Platform\SDL\SdlGameWindow.cs" />
     <Compile Include="Platform\Utilities\AssemblyHelper.cs" />
     <Compile Include="Platform\Utilities\CurrentPlatform.cs" />
     <Compile Include="Platform\Utilities\FuncLoader.Desktop.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="Platform\Graphics\GraphicsAdapter.Legacy.cs" />
     <Compile Include="Platform\GamePlatform.Desktop.cs" />
     <Compile Include="Platform\GraphicsDeviceManager.SDL.cs" />
-    
+
     <Compile Include="..\ThirdParty\StbImageSharp\src\StbImageSharp\**\*.cs" LinkBase="Utilities\StbImageSharp" />
     <Compile Include="..\ThirdParty\StbImageWriteSharp\src\StbImageWriteSharp\**\*.cs" LinkBase="Utilities\StbImageWriteSharp" />
 
@@ -82,6 +83,10 @@
     <EmbeddedResource Include="..\ThirdParty\SDL_GameControllerDB\gamecontrollerdb.txt">
       <LogicalName>gamecontrollerdb.txt</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -133,5 +138,7 @@
   </ItemGroup>
 
   <Import Project="Platform\OpenGL.targets" />
+
   <Import Project="Platform\OpenAL.targets" />
+
 </Project>

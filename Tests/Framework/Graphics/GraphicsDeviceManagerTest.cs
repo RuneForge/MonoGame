@@ -306,12 +306,12 @@ namespace MonoGame.Tests.Graphics
             gdm.DeviceDisposing += (sender, args) =>
             {
                 invoked = true;
-                Assert.IsTrue(gdm.GraphicsDevice.IsDisposed);
+                Assert.IsTrue(gdm.GraphicsDevice.Disposed);
             };
 
             game.InitializeOnly();
 
-            Assert.IsFalse(gdm.GraphicsDevice.IsDisposed);
+            Assert.IsFalse(gdm.GraphicsDevice.Disposed);
             Assert.IsFalse(invoked);
             // change the graphics profile so the current device needs to be disposed
             gdm.GraphicsProfile = GraphicsProfile.HiDef;
