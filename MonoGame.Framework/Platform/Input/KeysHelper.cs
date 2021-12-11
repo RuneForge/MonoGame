@@ -14,7 +14,7 @@ namespace Microsoft.Xna.Framework.Input
         static KeysHelper()
         {
             _map = new HashSet<int>();
-            var allKeys = (Keys[])Enum.GetValues(typeof(Keys));
+            var allKeys = (Key[])Enum.GetValues(typeof(Key));
             foreach (var key in allKeys)
             {
                 _map.Add((int)key);

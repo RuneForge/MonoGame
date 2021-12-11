@@ -2,220 +2,139 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
+
 namespace Microsoft.Xna.Framework.Input
 {
     /// <summary>
-    /// A struct that represents the current button states for the controller.
+    /// Defines the buttons on a gamepad.
     /// </summary>
-    public struct GamePadButtons
+    [Flags]
+    public enum GamePadButtons
     {
-        internal readonly Buttons _buttons;
+        /// <summary>
+        /// Directional pad up.
+        /// </summary>
+        DPadUp = 1,
 
         /// <summary>
-        /// Gets a value indicating if the button A is pressed.
+        /// Directional pad down.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button A is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState A
-        {
-            get
-            {
-                return ((_buttons & Buttons.A) == Buttons.A) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        DPadDown = 2,
 
         /// <summary>
-        /// Gets a value indicating if the button B is pressed.
+        /// Directional pad left.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button B is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState B
-        {
-            get
-            {
-                return ((_buttons & Buttons.B) == Buttons.B) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        DPadLeft = 4,
 
         /// <summary>
-        /// Gets a value indicating if the button Back is pressed.
+        /// Directional pad right.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button Back is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState Back
-        {
-            get
-            {
-                return ((_buttons & Buttons.Back) == Buttons.Back) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        DPadRight = 8,
 
         /// <summary>
-        /// Gets a value indicating if the button X is pressed.
+        /// START button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button X is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState X
-        {
-            get
-            {
-                return ((_buttons & Buttons.X) == Buttons.X) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        Start = 16,
+      
+        /// <summary>
+        /// BACK button.
+        /// </summary>
+        Back = 32,
 
         /// <summary>
-        /// Gets a value indicating if the button Y is pressed.
+        /// Left stick button (pressing the left stick).
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button Y is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState Y
-        {
-            get
-            {
-                return ((_buttons & Buttons.Y) == Buttons.Y) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        LeftStick = 64,
 
         /// <summary>
-        /// Gets a value indicating if the button Start is pressed.
+        /// Right stick button (pressing the right stick).
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the button Start is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState Start
-        {
-            get
-            {
-                return ((_buttons & Buttons.Start) == Buttons.Start) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        RightStick = 128,
 
         /// <summary>
-        /// Gets a value indicating if the left shoulder button is pressed.
+        /// Left bumper (shoulder) button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the left shoulder button is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState LeftShoulder
-        {
-            get
-            {
-                return ((_buttons & Buttons.LeftShoulder) == Buttons.LeftShoulder) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        LeftShoulder = 256,
 
         /// <summary>
-        /// Gets a value indicating if the left stick button is pressed.
+        /// Right bumper (shoulder) button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the left stick button is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState LeftStick
-        {
-            get
-            {
-                return ((_buttons & Buttons.LeftStick) == Buttons.LeftStick) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        RightShoulder = 512,
 
         /// <summary>
-        /// Gets a value indicating if the right shoulder button is pressed.
+        /// Big button.
+        /// </summary>    
+        BigButton = 2048,
+       
+        /// <summary>
+        /// A button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the right shoulder button is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState RightShoulder
-        {
-            get
-            {
-                return ((_buttons & Buttons.RightShoulder) == Buttons.RightShoulder) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        A = 4096,
 
         /// <summary>
-        /// Gets a value indicating if the right stick button is pressed.
+        /// B button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the right stick button is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState RightStick
-        {
-            get
-            {
-                return ((_buttons & Buttons.RightStick) == Buttons.RightStick) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
+        B = 8192,
 
         /// <summary>
-        /// Gets a value indicating if the guide button is pressed.
+        /// X button.
         /// </summary>
-        /// <value><see cref="ButtonState.Pressed"/> if the guide button is pressed; otherwise, <see cref="ButtonState.Released"/>.</value>
-        public ButtonState BigButton
-        {
-            get
-            {
-                return ((_buttons & Buttons.BigButton) == Buttons.BigButton) ? ButtonState.Pressed : ButtonState.Released;
-            }
-        }
-        
-        public GamePadButtons(Buttons buttons)
-        {
-            _buttons = buttons;
-        }
-
-        internal GamePadButtons(params Buttons[] buttons) : this()
-        {
-            foreach (Buttons b in buttons)
-                _buttons |= b;
-        }
+        X = 16384,
 
         /// <summary>
-        /// Determines whether two specified instances of <see cref="GamePadButtons"/> are equal.
+        /// Y button.
         /// </summary>
-        /// <param name="left">The first object to compare.</param>
-        /// <param name="right">The second object to compare.</param>
-        /// <returns>true if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, false.</returns>
-        public static bool operator ==(GamePadButtons left, GamePadButtons right)
-        {
-            return left._buttons == right._buttons;
-        }
+        Y = 32768,    
 
         /// <summary>
-        /// Determines whether two specified instances of <see cref="GamePadButtons"/> are not equal.
+        /// Left stick is towards the left.
         /// </summary>
-        /// <param name="left">The first object to compare.</param>
-        /// <param name="right">The second object to compare.</param>
-        /// <returns>true if <paramref name="left"/> and <paramref name="right"/> are not equal; otherwise, false.</returns>
-        public static bool operator !=(GamePadButtons left, GamePadButtons right)
-        {
-            return !(left == right);
-        }
+        LeftThumbstickLeft = 2097152,
 
         /// <summary>
-        /// Returns a value indicating whether this instance is equal to a specified object.
+        /// Right trigger.
         /// </summary>
-        /// <param name="obj">An object to compare to this instance.</param>
-        /// <returns>true if <paramref name="obj"/> is a <see cref="GamePadButtons"/> and has the same value as this instance; otherwise, false.</returns>
-        public override bool Equals(object obj)
-        {
-            return (obj is GamePadButtons) && (this == (GamePadButtons)obj);
-        }
+        RightTrigger = 4194304,
 
         /// <summary>
-        /// Serves as a hash function for a <see cref="T:Microsoft.Xna.Framework.Input.GamePadButtons"/> object.
+        /// Left trigger.
         /// </summary>
-        /// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
-        /// hash table.</returns>
-        public override int GetHashCode ()
-        {
-            return (int)_buttons;
-        }
+        LeftTrigger = 8388608,
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:Microsoft.Xna.Framework.Input.GamePadButtons"/>.
+        /// Right stick is towards up.
+        /// </summary>   
+        RightThumbstickUp = 16777216,
+
+        /// <summary>
+        /// Right stick is towards down.
+        /// </summary>   
+        RightThumbstickDown = 33554432,
+
+        /// <summary>
+        /// Right stick is towards the right.
         /// </summary>
-        /// <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:Microsoft.Xna.Framework.Input.GamePadButtons"/>.</returns>
-        public override string ToString()
-        {
-            return "[GamePadButtons:" +
-                " A=" + (int)A +
-                ", B=" + (int)B +
-                ", Back=" + (int)Back +
-                ", X=" + (int)X +
-                ", Y=" + (int)Y +
-                ", Start=" + (int)Start +
-                ", LeftShoulder=" + (int)LeftShoulder +
-                ", LeftStick=" + (int)LeftStick +
-                ", RightShoulder=" + (int)RightShoulder +
-                ", RightStick=" + (int)RightStick +
-                ", BigButton=" + (int)BigButton +
-                "]";
-        }
+        RightThumbstickRight = 67108864,
+
+        /// <summary>
+        /// Right stick is towards the left.
+        /// </summary>
+        RightThumbstickLeft = 134217728,
+
+        /// <summary>
+        /// Left stick is towards up.
+        /// </summary>  
+        LeftThumbstickUp = 268435456,
+
+        /// <summary>
+        /// Left stick is towards down.
+        /// </summary>  
+        LeftThumbstickDown = 536870912,
+
+        /// <summary>
+        /// Left stick is towards the right.
+        /// </summary>
+        LeftThumbstickRight = 1073741824
     }
 }
-

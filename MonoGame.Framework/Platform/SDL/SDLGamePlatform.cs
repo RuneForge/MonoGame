@@ -20,7 +20,7 @@ namespace Microsoft.Xna.Framework
         #region Fields
 
         private readonly Game m_game;
-        private readonly List<Keys> m_keys;
+        private readonly List<Key> m_keys;
         private int m_isExiting;
         private SdlGameWindow m_gameWindow;
 
@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework
             : base(game)
         {
             m_game = game;
-            m_keys = new List<Keys>();
+            m_keys = new List<Key>();
             Keyboard.SetKeys(m_keys);
 
             Sdl.Version sversion;
@@ -196,7 +196,7 @@ namespace Microsoft.Xna.Framework
 
                     case Sdl.EventType.KeyDown:
                         {
-                            Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
+                            Key key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
                             if (!m_keys.Contains(key))
                                 m_keys.Add(key);
                             char character = (char)ev.Key.Keysym.Sym;
@@ -208,7 +208,7 @@ namespace Microsoft.Xna.Framework
 
                     case Sdl.EventType.KeyUp:
                         {
-                            Keys key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
+                            Key key = KeyboardUtil.ToXna(ev.Key.Keysym.Sym);
                             m_keys.Remove(key);
                             m_gameWindow.OnKeyUp(new InputKeyEventArgs(key));
                         }

@@ -280,20 +280,20 @@ namespace Microsoft.Xna.Framework.Input
             );
 
             var buttons =
-                new GamePadButtons(
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.A) == 1) ? Buttons.A : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.B) == 1) ? Buttons.B : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Back) == 1) ? Buttons.Back : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Guide) == 1) ? Buttons.BigButton : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.LeftShoulder) == 1) ? Buttons.LeftShoulder : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.RightShoulder) == 1) ? Buttons.RightShoulder : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.LeftStick) == 1) ? Buttons.LeftStick : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.RightStick) == 1) ? Buttons.RightStick : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Start) == 1) ? Buttons.Start : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.X) == 1) ? Buttons.X : 0) |
-                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Y) == 1) ? Buttons.Y : 0) |
-                    ((triggers.Left > 0f) ? Buttons.LeftTrigger : 0) |
-                    ((triggers.Right > 0f) ? Buttons.RightTrigger : 0)
+                new GamePadButtonsState(
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.A) == 1) ? GamePadButtons.A : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.B) == 1) ? GamePadButtons.B : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Back) == 1) ? GamePadButtons.Back : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Guide) == 1) ? GamePadButtons.BigButton : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.LeftShoulder) == 1) ? GamePadButtons.LeftShoulder : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.RightShoulder) == 1) ? GamePadButtons.RightShoulder : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.LeftStick) == 1) ? GamePadButtons.LeftStick : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.RightStick) == 1) ? GamePadButtons.RightStick : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Start) == 1) ? GamePadButtons.Start : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.X) == 1) ? GamePadButtons.X : 0) |
+                    ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Y) == 1) ? GamePadButtons.Y : 0) |
+                    ((triggers.Left > 0f) ? GamePadButtons.LeftTrigger : 0) |
+                    ((triggers.Right > 0f) ? GamePadButtons.RightTrigger : 0)
                 );
 
             var dPad =
