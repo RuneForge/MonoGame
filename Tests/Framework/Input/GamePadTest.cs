@@ -20,7 +20,7 @@ namespace MonoGame.Tests.Input
         [TestCaseSource("GetButtons")]
         public void GamePadButtonsTest(params Buttons[] buttons)
         {
-            var gpb = new GamePadButtons(buttons);
+            var gpb = new GamePadButtonsState(buttons);
 
             Assert.AreEqual(buttons.Contains(Buttons.A) ? ButtonState.Pressed : ButtonState.Released, gpb.A);
             Assert.AreEqual(buttons.Contains(Buttons.B) ? ButtonState.Pressed : ButtonState.Released, gpb.B);
@@ -97,7 +97,7 @@ namespace MonoGame.Tests.Input
         [TestCaseSource("ThumbStickVirtualButtonsIgnoreDeadZoneTestCases")]
         public void ThumbStickVirtualButtonsIgnoreDeadZone(Vector2 left, Vector2 right, GamePadDeadZone deadZone, Buttons expectedButtons)
         {
-            var state = new GamePadState(new GamePadThumbSticks(left, right, deadZone, deadZone), new GamePadTriggers(), new GamePadButtons(), new GamePadDPad());
+            var state = new GamePadState(new GamePadThumbSticks(left, right, deadZone, deadZone), new GamePadTriggers(), new GamePadButtonsState(), new GamePadDPad());
 
             Assert.AreEqual(expectedButtons, GetAllPressedButtons(state));
         }

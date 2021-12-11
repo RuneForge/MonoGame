@@ -280,7 +280,7 @@ namespace Microsoft.Xna.Framework.Input
             );
 
             var buttons =
-                new GamePadButtons(
+                new GamePadButtonsState(
                     ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.A) == 1) ? Buttons.A : 0) |
                     ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.B) == 1) ? Buttons.B : 0) |
                     ((Sdl.GameController.GetButton(gdevice, Sdl.GameController.Button.Back) == 1) ? Buttons.Back : 0) |

@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework.Input
         /// Gets a structure that identifies what buttons on the controller are pressed.
         /// </summary>
         /// <value>The buttons structure.</value>
-        public GamePadButtons Buttons { get; internal set; }
+        public GamePadButtonsState Buttons { get; internal set; }
 
         /// <summary>
         /// Gets a structure that identifies what directions of the directional pad on the controller are pressed.
@@ -62,7 +62,7 @@ namespace Microsoft.Xna.Framework.Input
         /// <param name="triggers">Initial trigger state..</param>
         /// <param name="buttons">Initial button state.</param>
         /// <param name="dPad">Initial directional pad state.</param>
-        public GamePadState(GamePadThumbSticks thumbSticks, GamePadTriggers triggers, GamePadButtons buttons, GamePadDPad dPad) : this()
+        public GamePadState(GamePadThumbSticks thumbSticks, GamePadTriggers triggers, GamePadButtonsState buttons, GamePadDPad dPad) : this()
         {
             ThumbSticks = thumbSticks;
             Triggers = triggers;
@@ -83,7 +83,7 @@ namespace Microsoft.Xna.Framework.Input
         /// <param name="rightTrigger">Right trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="button">Button(s) to initialize as pressed.</param>
         public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, Buttons button)
-            : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtons(button), new GamePadDPad(button))
+            : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtonsState(button), new GamePadDPad(button))
         {
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Xna.Framework.Input
         /// <param name="rightTrigger">Right trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="buttons"> Array of Buttons to initialize as pressed.</param>
         public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, Buttons[] buttons)
-            : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtons(buttons), new GamePadDPad(buttons))
+            : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtonsState(buttons), new GamePadDPad(buttons))
         {
         }
 

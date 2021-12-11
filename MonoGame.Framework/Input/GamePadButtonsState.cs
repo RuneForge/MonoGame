@@ -7,7 +7,7 @@ namespace Microsoft.Xna.Framework.Input
     /// <summary>
     /// A struct that represents the current button states for the controller.
     /// </summary>
-    public struct GamePadButtons
+    public struct GamePadButtonsState
     {
         internal readonly Buttons _buttons;
 
@@ -143,35 +143,35 @@ namespace Microsoft.Xna.Framework.Input
             }
         }
         
-        public GamePadButtons(Buttons buttons)
+        public GamePadButtonsState(Buttons buttons)
         {
             _buttons = buttons;
         }
 
-        internal GamePadButtons(params Buttons[] buttons) : this()
+        internal GamePadButtonsState(params Buttons[] buttons) : this()
         {
             foreach (Buttons b in buttons)
                 _buttons |= b;
         }
 
         /// <summary>
-        /// Determines whether two specified instances of <see cref="GamePadButtons"/> are equal.
+        /// Determines whether two specified instances of <see cref="GamePadButtonsState"/> are equal.
         /// </summary>
         /// <param name="left">The first object to compare.</param>
         /// <param name="right">The second object to compare.</param>
         /// <returns>true if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, false.</returns>
-        public static bool operator ==(GamePadButtons left, GamePadButtons right)
+        public static bool operator ==(GamePadButtonsState left, GamePadButtonsState right)
         {
             return left._buttons == right._buttons;
         }
 
         /// <summary>
-        /// Determines whether two specified instances of <see cref="GamePadButtons"/> are not equal.
+        /// Determines whether two specified instances of <see cref="GamePadButtonsState"/> are not equal.
         /// </summary>
         /// <param name="left">The first object to compare.</param>
         /// <param name="right">The second object to compare.</param>
         /// <returns>true if <paramref name="left"/> and <paramref name="right"/> are not equal; otherwise, false.</returns>
-        public static bool operator !=(GamePadButtons left, GamePadButtons right)
+        public static bool operator !=(GamePadButtonsState left, GamePadButtonsState right)
         {
             return !(left == right);
         }
@@ -180,10 +180,10 @@ namespace Microsoft.Xna.Framework.Input
         /// Returns a value indicating whether this instance is equal to a specified object.
         /// </summary>
         /// <param name="obj">An object to compare to this instance.</param>
-        /// <returns>true if <paramref name="obj"/> is a <see cref="GamePadButtons"/> and has the same value as this instance; otherwise, false.</returns>
+        /// <returns>true if <paramref name="obj"/> is a <see cref="GamePadButtonsState"/> and has the same value as this instance; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
-            return (obj is GamePadButtons) && (this == (GamePadButtons)obj);
+            return (obj is GamePadButtonsState) && (this == (GamePadButtonsState)obj);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Microsoft.Xna.Framework.Input
         /// </summary>
         /// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
         /// hash table.</returns>
-        public override int GetHashCode ()
+        public override int GetHashCode()
         {
             return (int)_buttons;
         }
@@ -218,4 +218,3 @@ namespace Microsoft.Xna.Framework.Input
         }
     }
 }
-
