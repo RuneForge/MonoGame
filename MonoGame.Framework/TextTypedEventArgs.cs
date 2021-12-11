@@ -13,7 +13,7 @@ namespace Microsoft.Xna.Framework
     /// </summary>
     public struct TextTypedEventArgs
     {
-        public TextTypedEventArgs(char character, Keys key = Keys.None)
+        public TextTypedEventArgs(char character, Key key = Key.None)
         {
             Character = character;
             Key = key;
@@ -27,6 +27,6 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// The pressed key.
         /// </summary>
-        public readonly Keys Key;
+        public readonly Key Key;
     }
 }

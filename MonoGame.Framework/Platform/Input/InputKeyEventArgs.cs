@@ -12,13 +12,13 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// The key that was either pressed or released.
         /// </summary>
-        public readonly Keys Key;
+        public readonly Key Key;
 
         /// <summary>
         /// Create a new keyboard input event
         /// </summary>
         /// <param name="key">The key involved in this event</param>
-        public InputKeyEventArgs(Keys key = Keys.None)
+        public InputKeyEventArgs(Key key = Key.None)
         {
             Key = key;
         }

@@ -12,13 +12,13 @@ namespace MonoGame.Tests.Input
     class KeyboardTest
     {
 
-        [TestCase(new[] { Keys.Up, Keys.A, Keys.Left, Keys.Oem8, Keys.Apps })]
-        public void CtorParams(Keys[] keys)
+        [TestCase(new[] { Key.Up, Key.A, Key.Left, Key.Oem8, Key.Apps })]
+        public void CtorParams(Key[] keys)
         {
             var state = new KeyboardState(keys);
             CollectionAssert.AreEquivalent(state.GetPressedKeys(), keys);
 
-            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            foreach (Key key in Enum.GetValues(typeof(Key)))
             {
                 var keyDown = keys.Contains(key);
                 Assert.AreEqual(keyDown ? KeyState.Down : KeyState.Up, state[key]);
@@ -28,12 +28,12 @@ namespace MonoGame.Tests.Input
         }
 
 #if !XNA
-        [TestCase(new[] { Keys.Up, Keys.A, Keys.Left, Keys.Oem8, Keys.Apps }, true, false)]
-        [TestCase(new[] { Keys.Right, Keys.Down, Keys.LeftAlt, Keys.LeftShift }, true, true)]
-        [TestCase(new[] { Keys.Delete, Keys.U, Keys.RightWindows, Keys.L, Keys.NumPad2 }, false, false)]
-        [TestCase(new[] { Keys.F9, Keys.F12, Keys.VolumeUp, Keys.OemAuto, Keys.NumPad3 }, false, false)]
-        [TestCase(new[] { Keys.OemMinus, Keys.OemTilde, Keys.Tab, Keys.Zoom }, true, false)]
-        public void TestState(Keys[] keys, bool capsLock, bool numLock)
+        [TestCase(new[] { Key.Up, Key.A, Key.Left, Key.Oem8, Key.Apps }, true, false)]
+        [TestCase(new[] { Key.Right, Key.Down, Key.LeftAlt, Key.LeftShift }, true, true)]
+        [TestCase(new[] { Key.Delete, Key.U, Key.RightWindows, Key.L, Key.NumPad2 }, false, false)]
+        [TestCase(new[] { Key.F9, Key.F12, Key.VolumeUp, Key.OemAuto, Key.NumPad3 }, false, false)]
+        [TestCase(new[] { Key.OemMinus, Key.OemTilde, Key.Tab, Key.Zoom }, true, false)]
+        public void TestState(Key[] keys, bool capsLock, bool numLock)
         {
             var keyList = keys.ToList();
             var state = new KeyboardState(keys, capsLock, numLock);
@@ -42,7 +42,7 @@ namespace MonoGame.Tests.Input
             Assert.AreEqual(state.CapsLock, capsLock);
             Assert.AreEqual(state.NumLock, numLock);
 
-            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            foreach (Key key in Enum.GetValues(typeof(Key)))
             {
                 var keyDown = keyList.Contains(key);
                 Assert.AreEqual(state.IsKeyDown(key), keyDown);
@@ -58,15 +58,15 @@ namespace MonoGame.Tests.Input
             Keyboard.GetState();
         }
 
-        [TestCase(new[] { Keys.Up, Keys.A, Keys.Left, Keys.Oem8, Keys.Apps })]
-        public void TestGetPressedKeysGarbageless(Keys[] keys)
+        [TestCase(new[] { Key.Up, Key.A, Key.Left, Key.Oem8, Key.Apps })]
+        public void TestGetPressedKeysGarbageless(Key[] keys)
         {
             var state = new KeyboardState(keys);
 
             int count = state.GetPressedKeyCount();
             Assert.AreEqual(keys.Length, count);
 
-            Keys[] newKeysArray = new Keys[count];
+            Key[] newKeysArray = new Key[count];
 
             state.GetPressedKeys(newKeysArray);
 
