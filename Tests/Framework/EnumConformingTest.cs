@@ -370,31 +370,31 @@ namespace MonoGame.Tests.Framework
         [Test]
         public void ButtonsEnum()
         {
-            Assert.AreEqual(1, (int)Buttons.DPadUp);
-            Assert.AreEqual(2, (int)Buttons.DPadDown);
-            Assert.AreEqual(4, (int)Buttons.DPadLeft);
-            Assert.AreEqual(8, (int)Buttons.DPadRight);
-            Assert.AreEqual(16, (int)Buttons.Start);
-            Assert.AreEqual(32, (int)Buttons.Back);
-            Assert.AreEqual(64, (int)Buttons.LeftStick);
-            Assert.AreEqual(128, (int)Buttons.RightStick);
-            Assert.AreEqual(256, (int)Buttons.LeftShoulder);
-            Assert.AreEqual(512, (int)Buttons.RightShoulder);
-            Assert.AreEqual(2048, (int)Buttons.BigButton);
-            Assert.AreEqual(4096, (int)Buttons.A);
-            Assert.AreEqual(8192, (int)Buttons.B);
-            Assert.AreEqual(16384, (int)Buttons.X);
-            Assert.AreEqual(32768, (int)Buttons.Y);
-            Assert.AreEqual(2097152, (int)Buttons.LeftThumbstickLeft);
-            Assert.AreEqual(4194304, (int)Buttons.RightTrigger);
-            Assert.AreEqual(8388608, (int)Buttons.LeftTrigger);
-            Assert.AreEqual(16777216, (int)Buttons.RightThumbstickUp);
-            Assert.AreEqual(33554432, (int)Buttons.RightThumbstickDown);
-            Assert.AreEqual(67108864, (int)Buttons.RightThumbstickRight);
-            Assert.AreEqual(134217728, (int)Buttons.RightThumbstickLeft);
-            Assert.AreEqual(268435456, (int)Buttons.LeftThumbstickUp);
-            Assert.AreEqual(536870912, (int)Buttons.LeftThumbstickDown);
-            Assert.AreEqual(1073741824, (int)Buttons.LeftThumbstickRight);
+            Assert.AreEqual(1, (int)GamePadButtons.DPadUp);
+            Assert.AreEqual(2, (int)GamePadButtons.DPadDown);
+            Assert.AreEqual(4, (int)GamePadButtons.DPadLeft);
+            Assert.AreEqual(8, (int)GamePadButtons.DPadRight);
+            Assert.AreEqual(16, (int)GamePadButtons.Start);
+            Assert.AreEqual(32, (int)GamePadButtons.Back);
+            Assert.AreEqual(64, (int)GamePadButtons.LeftStick);
+            Assert.AreEqual(128, (int)GamePadButtons.RightStick);
+            Assert.AreEqual(256, (int)GamePadButtons.LeftShoulder);
+            Assert.AreEqual(512, (int)GamePadButtons.RightShoulder);
+            Assert.AreEqual(2048, (int)GamePadButtons.BigButton);
+            Assert.AreEqual(4096, (int)GamePadButtons.A);
+            Assert.AreEqual(8192, (int)GamePadButtons.B);
+            Assert.AreEqual(16384, (int)GamePadButtons.X);
+            Assert.AreEqual(32768, (int)GamePadButtons.Y);
+            Assert.AreEqual(2097152, (int)GamePadButtons.LeftThumbstickLeft);
+            Assert.AreEqual(4194304, (int)GamePadButtons.RightTrigger);
+            Assert.AreEqual(8388608, (int)GamePadButtons.LeftTrigger);
+            Assert.AreEqual(16777216, (int)GamePadButtons.RightThumbstickUp);
+            Assert.AreEqual(33554432, (int)GamePadButtons.RightThumbstickDown);
+            Assert.AreEqual(67108864, (int)GamePadButtons.RightThumbstickRight);
+            Assert.AreEqual(134217728, (int)GamePadButtons.RightThumbstickLeft);
+            Assert.AreEqual(268435456, (int)GamePadButtons.LeftThumbstickUp);
+            Assert.AreEqual(536870912, (int)GamePadButtons.LeftThumbstickDown);
+            Assert.AreEqual(1073741824, (int)GamePadButtons.LeftThumbstickRight);
         }
 
         [Test]

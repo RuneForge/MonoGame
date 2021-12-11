@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Input
         private const float rightThumbDeadZone = 0.265f;
 #endif
 
-        internal readonly Buttons _virtualButtons;
+        internal readonly GamePadButtons _virtualButtons;
         private readonly Vector2 _left, _right;
 
         /// <summary>
@@ -59,24 +59,24 @@ namespace Microsoft.Xna.Framework.Input
             _virtualButtons = 0;
 
             if (leftPosition.X < -leftThumbDeadZone)
-                _virtualButtons |= Buttons.LeftThumbstickLeft;
+                _virtualButtons |= GamePadButtons.LeftThumbstickLeft;
             else if (leftPosition.X > leftThumbDeadZone)
-                _virtualButtons |= Buttons.LeftThumbstickRight;
+                _virtualButtons |= GamePadButtons.LeftThumbstickRight;
 
             if (leftPosition.Y < -leftThumbDeadZone)
-                _virtualButtons |= Buttons.LeftThumbstickDown;
+                _virtualButtons |= GamePadButtons.LeftThumbstickDown;
             else if (leftPosition.Y > leftThumbDeadZone)
-                _virtualButtons |= Buttons.LeftThumbstickUp;
+                _virtualButtons |= GamePadButtons.LeftThumbstickUp;
 
             if (rightPosition.X < -rightThumbDeadZone)
-                _virtualButtons |= Buttons.RightThumbstickLeft;
+                _virtualButtons |= GamePadButtons.RightThumbstickLeft;
             else if (rightPosition.X > rightThumbDeadZone)
-                _virtualButtons |= Buttons.RightThumbstickRight;
+                _virtualButtons |= GamePadButtons.RightThumbstickRight;
 
             if (rightPosition.Y < -rightThumbDeadZone)
-                _virtualButtons |= Buttons.RightThumbstickDown;
+                _virtualButtons |= GamePadButtons.RightThumbstickDown;
             else if (rightPosition.Y > rightThumbDeadZone)
-                _virtualButtons |= Buttons.RightThumbstickUp;
+                _virtualButtons |= GamePadButtons.RightThumbstickUp;
         }
 
         private Vector2 ApplyDeadZone(GamePadDeadZone deadZoneMode, float deadZone, Vector2 thumbstickPosition)

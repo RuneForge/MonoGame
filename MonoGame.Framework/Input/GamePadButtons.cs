@@ -7,10 +7,10 @@ using System;
 namespace Microsoft.Xna.Framework.Input
 {
     /// <summary>
-    /// Defines the buttons on gamepad.
+    /// Defines the buttons on a gamepad.
     /// </summary>
     [Flags]
-    public enum Buttons
+    public enum GamePadButtons
     {
         /// <summary>
         /// Directional pad up.

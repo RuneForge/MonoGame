@@ -18,21 +18,21 @@ namespace MonoGame.Tests.Input
 
 #if !XNA
         [TestCaseSource("GetButtons")]
-        public void GamePadButtonsTest(params Buttons[] buttons)
+        public void GamePadButtonsTest(params GamePadButtons[] buttons)
         {
             var gpb = new GamePadButtonsState(buttons);
 
-            Assert.AreEqual(buttons.Contains(Buttons.A) ? ButtonState.Pressed : ButtonState.Released, gpb.A);
-            Assert.AreEqual(buttons.Contains(Buttons.B) ? ButtonState.Pressed : ButtonState.Released, gpb.B);
-            Assert.AreEqual(buttons.Contains(Buttons.Back) ? ButtonState.Pressed : ButtonState.Released, gpb.Back);
-            Assert.AreEqual(buttons.Contains(Buttons.X) ? ButtonState.Pressed : ButtonState.Released, gpb.X);
-            Assert.AreEqual(buttons.Contains(Buttons.Y) ? ButtonState.Pressed : ButtonState.Released, gpb.Y);
-            Assert.AreEqual(buttons.Contains(Buttons.Start) ? ButtonState.Pressed : ButtonState.Released, gpb.Start);
-            Assert.AreEqual(buttons.Contains(Buttons.LeftShoulder) ? ButtonState.Pressed : ButtonState.Released, gpb.LeftShoulder);
-            Assert.AreEqual(buttons.Contains(Buttons.LeftStick) ? ButtonState.Pressed : ButtonState.Released, gpb.LeftStick);
-            Assert.AreEqual(buttons.Contains(Buttons.RightShoulder) ? ButtonState.Pressed : ButtonState.Released, gpb.RightShoulder);
-            Assert.AreEqual(buttons.Contains(Buttons.RightStick) ? ButtonState.Pressed : ButtonState.Released, gpb.RightStick);
-            Assert.AreEqual(buttons.Contains(Buttons.BigButton) ? ButtonState.Pressed : ButtonState.Released, gpb.BigButton);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.A) ? ButtonState.Pressed : ButtonState.Released, gpb.A);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.B) ? ButtonState.Pressed : ButtonState.Released, gpb.B);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.Back) ? ButtonState.Pressed : ButtonState.Released, gpb.Back);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.X) ? ButtonState.Pressed : ButtonState.Released, gpb.X);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.Y) ? ButtonState.Pressed : ButtonState.Released, gpb.Y);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.Start) ? ButtonState.Pressed : ButtonState.Released, gpb.Start);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.LeftShoulder) ? ButtonState.Pressed : ButtonState.Released, gpb.LeftShoulder);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.LeftStick) ? ButtonState.Pressed : ButtonState.Released, gpb.LeftStick);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.RightShoulder) ? ButtonState.Pressed : ButtonState.Released, gpb.RightShoulder);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.RightStick) ? ButtonState.Pressed : ButtonState.Released, gpb.RightStick);
+            Assert.AreEqual(buttons.Contains(GamePadButtons.BigButton) ? ButtonState.Pressed : ButtonState.Released, gpb.BigButton);
         }
 #endif
 
@@ -59,11 +59,11 @@ namespace MonoGame.Tests.Input
             Assert.AreEqual(pad, pad2);
             Assert.AreEqual(pad.GetHashCode(), pad2.GetHashCode());
 
-            var buttons = (Buttons) 0;
-            if (up == ButtonState.Pressed) buttons |= Buttons.DPadUp;
-            if (down == ButtonState.Pressed) buttons |= Buttons.DPadDown;
-            if (left == ButtonState.Pressed) buttons |= Buttons.DPadLeft;
-            if (right == ButtonState.Pressed) buttons |= Buttons.DPadRight;
+            var buttons = (GamePadButtons) 0;
+            if (up == ButtonState.Pressed) buttons |= GamePadButtons.DPadUp;
+            if (down == ButtonState.Pressed) buttons |= GamePadButtons.DPadDown;
+            if (left == ButtonState.Pressed) buttons |= GamePadButtons.DPadLeft;
+            if (right == ButtonState.Pressed) buttons |= GamePadButtons.DPadRight;
 
             var pad3 = new GamePadDPad(buttons);
             Assert.AreEqual(pad, pad3);
@@ -95,7 +95,7 @@ namespace MonoGame.Tests.Input
 
 #if !XNA
         [TestCaseSource("ThumbStickVirtualButtonsIgnoreDeadZoneTestCases")]
-        public void ThumbStickVirtualButtonsIgnoreDeadZone(Vector2 left, Vector2 right, GamePadDeadZone deadZone, Buttons expectedButtons)
+        public void ThumbStickVirtualButtonsIgnoreDeadZone(Vector2 left, Vector2 right, GamePadDeadZone deadZone, GamePadButtons expectedButtons)
         {
             var state = new GamePadState(new GamePadThumbSticks(left, right, deadZone, deadZone), new GamePadTriggers(), new GamePadButtonsState(), new GamePadDPad());
 
@@ -109,42 +109,42 @@ namespace MonoGame.Tests.Input
             {
                 yield return new TestCaseData(
                     Vector2.Zero, Vector2.Zero, GamePadDeadZone.Circular,
-                    (Buttons)0);
+                    (GamePadButtons)0);
 
                 yield return new TestCaseData(
                     new Vector2(1f, 0.1f), new Vector2(0.1f, 1f), GamePadDeadZone.Circular,
-                    Buttons.LeftThumbstickRight | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.RightThumbstickUp);
 
                 yield return new TestCaseData(
                     new Vector2(1f, 0.1f), new Vector2(0.1f, 1f), GamePadDeadZone.None,
-                    Buttons.LeftThumbstickRight | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.RightThumbstickUp);
 
                 yield return new TestCaseData(
                     new Vector2(1f, 0.1f), new Vector2(0.1f, 1f), GamePadDeadZone.IndependentAxes,
-                    Buttons.LeftThumbstickRight | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.RightThumbstickUp);
 
                 yield return new TestCaseData(
                     new Vector2(0.5f, -0.5f), new Vector2(-0.5f, 0.5f), GamePadDeadZone.Circular,
-                    Buttons.LeftThumbstickRight | Buttons.LeftThumbstickDown | Buttons.RightThumbstickLeft | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.LeftThumbstickDown | GamePadButtons.RightThumbstickLeft | GamePadButtons.RightThumbstickUp);
 
                 yield return new TestCaseData(
                     new Vector2(0.1f, -0.1f), new Vector2(-0.1f, 0.1f), GamePadDeadZone.None,
-                    (Buttons)0);
+                    (GamePadButtons)0);
 
                 yield return new TestCaseData(
                     new Vector2(0.4f, -0.4f), new Vector2(-0.4f, 0.4f), GamePadDeadZone.IndependentAxes,
-                    Buttons.LeftThumbstickRight | Buttons.LeftThumbstickDown | Buttons.RightThumbstickLeft | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.LeftThumbstickDown | GamePadButtons.RightThumbstickLeft | GamePadButtons.RightThumbstickUp);
 
                 yield return new TestCaseData(
                     new Vector2(0.4f, 0f), new Vector2(0f, 0.4f), GamePadDeadZone.Circular,
-                    Buttons.LeftThumbstickRight | Buttons.RightThumbstickUp);
+                    GamePadButtons.LeftThumbstickRight | GamePadButtons.RightThumbstickUp);
             }
         }
 
-        private static Buttons GetAllPressedButtons(GamePadState state)
+        private static GamePadButtons GetAllPressedButtons(GamePadState state)
         {
-            Buttons buttons = 0;
-            foreach (var button in Enum.GetValues(typeof(Buttons)).Cast<Buttons>().Where(state.IsButtonDown))
+            GamePadButtons buttons = 0;
+            foreach (var button in Enum.GetValues(typeof(GamePadButtons)).Cast<GamePadButtons>().Where(state.IsButtonDown))
                 buttons |= button;
             return buttons;
         }
@@ -216,14 +216,14 @@ namespace MonoGame.Tests.Input
 
         #region State
 
-        [TestCase((Buttons)0, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadDown, new[] { ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadLeft, new[] { ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadRight, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Pressed, ButtonState.Released })]
-        [TestCase(Buttons.DPadUp, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Pressed })]
-        public void ConstructDPadState(Buttons button, ButtonState[] expectedDPadButtonStates)
+        [TestCase((GamePadButtons)0, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadDown, new[] { ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadLeft, new[] { ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadRight, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Pressed, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadUp, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Pressed })]
+        public void ConstructDPadState(GamePadButtons button, ButtonState[] expectedDPadButtonStates)
         {
-            var state = new GamePadState(Vector2.Zero, Vector2.Zero, 0f, 0f, button != 0 ? button : new Buttons());
+            var state = new GamePadState(Vector2.Zero, Vector2.Zero, 0f, 0f, button != 0 ? button : new GamePadButtons());
 
             if (button != 0)
                 Assert.True(state.IsButtonDown(button));
@@ -235,14 +235,14 @@ namespace MonoGame.Tests.Input
         }
 
 
-        [TestCase((Buttons)0, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadDown, new[] { ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadLeft, new[] { ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released })]
-        [TestCase(Buttons.DPadRight, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Pressed, ButtonState.Released })]
-        [TestCase(Buttons.DPadUp, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Pressed })]
-        public void ConstructDPadStateWithButtonsArray(Buttons button, ButtonState[] expectedDPadButtonStates)
+        [TestCase((GamePadButtons)0, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadDown, new[] { ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadLeft, new[] { ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadRight, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Pressed, ButtonState.Released })]
+        [TestCase(GamePadButtons.DPadUp, new[] { ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Pressed })]
+        public void ConstructDPadStateWithButtonsArray(GamePadButtons button, ButtonState[] expectedDPadButtonStates)
         {
-            var state = new GamePadState(Vector2.Zero, Vector2.Zero, 0f, 0f, button != 0 ? new Buttons[] {button} : new Buttons[] {});
+            var state = new GamePadState(Vector2.Zero, Vector2.Zero, 0f, 0f, button != 0 ? new GamePadButtons[] {button} : new GamePadButtons[] {});
 
             if (button != 0)
                 Assert.True(state.IsButtonDown(button));
@@ -254,19 +254,19 @@ namespace MonoGame.Tests.Input
         }
 
         private const int Count = 6;
-        public static IEnumerable<Buttons[]> GetButtons()
+        public static IEnumerable<GamePadButtons[]> GetButtons()
         {
             return new[]
             {
                 // All
-                Enum.GetValues(typeof(Buttons)).Cast<Buttons>().ToArray(),
+                Enum.GetValues(typeof(GamePadButtons)).Cast<GamePadButtons>().ToArray(),
                 // None
-                new Buttons[0],
+                new GamePadButtons[0],
                 // Random
-                new [] { Buttons.Start, Buttons.LeftStick, Buttons.DPadDown, Buttons.A},
-                new [] { Buttons.Back, Buttons.BigButton, Buttons.LeftStick, Buttons.Y, Buttons.B, Buttons.RightShoulder, Buttons.LeftTrigger},
-                new [] { Buttons.RightTrigger, Buttons.RightStick, Buttons.RightShoulder, Buttons.DPadDown, Buttons.DPadLeft },
-                new [] { Buttons.Start, Buttons.Back, Buttons.LeftShoulder, Buttons.X, Buttons.Y, Buttons.B, Buttons.A }
+                new [] { GamePadButtons.Start, GamePadButtons.LeftStick, GamePadButtons.DPadDown, GamePadButtons.A},
+                new [] { GamePadButtons.Back, GamePadButtons.BigButton, GamePadButtons.LeftStick, GamePadButtons.Y, GamePadButtons.B, GamePadButtons.RightShoulder, GamePadButtons.LeftTrigger},
+                new [] { GamePadButtons.RightTrigger, GamePadButtons.RightStick, GamePadButtons.RightShoulder, GamePadButtons.DPadDown, GamePadButtons.DPadLeft },
+                new [] { GamePadButtons.Start, GamePadButtons.Back, GamePadButtons.LeftShoulder, GamePadButtons.X, GamePadButtons.Y, GamePadButtons.B, GamePadButtons.A }
             };
         }
 
@@ -274,13 +274,13 @@ namespace MonoGame.Tests.Input
         public void TestState([Random(-1f, 1f, Count)] double leftX, [Random(-1f, 1f, Count)] double leftY,
             [Random(-1f, 1f, Count)] double rightX, [Random(-1f, 1f, Count)] double rightY,
             [Random(0f, 1f, Count)] double doubleLT, [Random(0f, 1f, Count)] double doubleRT,
-            [ValueSource("GetButtons")] Buttons[] buttons, [Values(true, false, true, false)] bool isConnected)
+            [ValueSource("GetButtons")] GamePadButtons[] buttons, [Values(true, false, true, false)] bool isConnected)
         {
             var leftStick = new Vector2((float) leftX, (float) leftY);
             var rightStick = new Vector2((float) rightX, (float) rightY);
             var leftTrigger = (float) doubleLT;
             var rightTrigger = (float) doubleRT;
-            Buttons allButtons = 0;
+            GamePadButtons allButtons = 0;
             if (buttons.Any())
                 foreach (var button in buttons)
                     allButtons |= button;
@@ -298,9 +298,9 @@ namespace MonoGame.Tests.Input
             AssertButtons(buttons, state);
         }
 
-        private static void AssertButtons(IEnumerable<Buttons> pressedButtons, GamePadState state)
+        private static void AssertButtons(IEnumerable<GamePadButtons> pressedButtons, GamePadState state)
         {
-            Buttons joinedButtons = 0;
+            GamePadButtons joinedButtons = 0;
             foreach (var button in pressedButtons)
                 joinedButtons |= button;
 
@@ -310,8 +310,8 @@ namespace MonoGame.Tests.Input
 #endif
 
             // all buttons except for thumbstick position buttons and triggers (they're not controlled via buttons here)
-            var allButtons = Enum.GetValues(typeof(Buttons)).OfType<Buttons>()
-                .Where(b => !Regex.IsMatch(Enum.GetName(typeof(Buttons), b), "(Thumbstick|Trigger)"));
+            var allButtons = Enum.GetValues(typeof(GamePadButtons)).OfType<GamePadButtons>()
+                .Where(b => !Regex.IsMatch(Enum.GetName(typeof(GamePadButtons), b), "(Thumbstick|Trigger)"));
 
             foreach (var button in allButtons)
             {

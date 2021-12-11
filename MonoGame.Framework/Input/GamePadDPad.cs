@@ -45,7 +45,7 @@ namespace Microsoft.Xna.Framework.Input
             Right = rightValue;
         }
 
-        internal GamePadDPad(Buttons[] buttons) : this()
+        internal GamePadDPad(GamePadButtons[] buttons) : this()
         {
             foreach (var button in buttons)
             {
@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework.Input
             }
         }
 
-        internal GamePadDPad(Buttons button) : this()
+        internal GamePadDPad(GamePadButtons button) : this()
         {
             ConvertButtonToDirection(button);
         }
@@ -117,15 +117,15 @@ namespace Microsoft.Xna.Framework.Input
             return "" + (int)Left + (int)Up + (int)Right + (int)Down;
         }
 
-        private void ConvertButtonToDirection(Buttons button)
+        private void ConvertButtonToDirection(GamePadButtons button)
         {
-            if ((button & Buttons.DPadDown) == Buttons.DPadDown)
+            if ((button & GamePadButtons.DPadDown) == GamePadButtons.DPadDown)
                 Down = ButtonState.Pressed;
-            if ((button & Buttons.DPadLeft) == Buttons.DPadLeft)
+            if ((button & GamePadButtons.DPadLeft) == GamePadButtons.DPadLeft)
                 Left = ButtonState.Pressed;
-            if ((button & Buttons.DPadRight) == Buttons.DPadRight)
+            if ((button & GamePadButtons.DPadRight) == GamePadButtons.DPadRight)
                 Right = ButtonState.Pressed;
-            if ((button & Buttons.DPadUp) == Buttons.DPadUp)
+            if ((button & GamePadButtons.DPadUp) == GamePadButtons.DPadUp)
                 Up = ButtonState.Pressed;
         }
     }

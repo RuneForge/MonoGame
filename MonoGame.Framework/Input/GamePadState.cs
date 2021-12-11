@@ -82,7 +82,7 @@ namespace Microsoft.Xna.Framework.Input
         /// <param name="leftTrigger">Left trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="rightTrigger">Right trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="button">Button(s) to initialize as pressed.</param>
-        public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, Buttons button)
+        public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, GamePadButtons button)
             : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtonsState(button), new GamePadDPad(button))
         {
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Xna.Framework.Input
         /// <param name="leftTrigger">Left trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="rightTrigger">Right trigger value. This value is clamped between 0.0 and 1.0.</param>
         /// <param name="buttons"> Array of Buttons to initialize as pressed.</param>
-        public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, Buttons[] buttons)
+        public GamePadState(Vector2 leftThumbStick, Vector2 rightThumbStick, float leftTrigger, float rightTrigger, GamePadButtons[] buttons)
             : this(new GamePadThumbSticks(leftThumbStick, rightThumbStick), new GamePadTriggers(leftTrigger, rightTrigger), new GamePadButtonsState(buttons), new GamePadDPad(buttons))
         {
         }
@@ -110,20 +110,20 @@ namespace Microsoft.Xna.Framework.Input
         /// <summary>
         /// Gets the button mask along with 'virtual buttons' like LeftThumbstickLeft.
         /// </summary>
-        private Buttons GetVirtualButtons ()
+        private GamePadButtons GetVirtualButtons ()
         {
             var result = Buttons._buttons;
 
             result |= ThumbSticks._virtualButtons;
 
             if (DPad.Down == ButtonState.Pressed)
-                result |= Microsoft.Xna.Framework.Input.Buttons.DPadDown;
+                result |= Microsoft.Xna.Framework.Input.GamePadButtons.DPadDown;
             if (DPad.Up == ButtonState.Pressed)
-                result |= Microsoft.Xna.Framework.Input.Buttons.DPadUp;
+                result |= Microsoft.Xna.Framework.Input.GamePadButtons.DPadUp;
             if (DPad.Left == ButtonState.Pressed)
-                result |= Microsoft.Xna.Framework.Input.Buttons.DPadLeft;
+                result |= Microsoft.Xna.Framework.Input.GamePadButtons.DPadLeft;
             if (DPad.Right == ButtonState.Pressed)
-                result |= Microsoft.Xna.Framework.Input.Buttons.DPadRight;
+                result |= Microsoft.Xna.Framework.Input.GamePadButtons.DPadRight;
 
             return result;
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Xna.Framework.Input
         /// </summary>
         /// <returns><c>true</c>, if button was pressed, <c>false</c> otherwise.</returns>
         /// <param name="button">Buttons to query. Specify a single button, or combine multiple buttons using a bitwise OR operation.</param>
-        public bool IsButtonDown(Buttons button)
+        public bool IsButtonDown(GamePadButtons button)
         {
             return (GetVirtualButtons() & button) == button;
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Xna.Framework.Input
         /// </summary>
         /// <returns><c>true</c>, if button was released (not pressed), <c>false</c> otherwise.</returns>
         /// <param name="button">Buttons to query. Specify a single button, or combine multiple buttons using a bitwise OR operation.</param>
-        public bool IsButtonUp(Buttons button)
+        public bool IsButtonUp(GamePadButtons button)
         {
             return (GetVirtualButtons() & button) != button;
         }
