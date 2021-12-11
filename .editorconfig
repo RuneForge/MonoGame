@@ -19,7 +19,6 @@ tab_width = 4
 ###############################################################################
 # Core EditorConfig Options - New line preferences
 ###############################################################################
-end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
