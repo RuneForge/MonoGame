@@ -5,20 +5,15 @@
 using System;
 
 namespace Microsoft.Xna.Framework
-{   
+{
     /// <summary>
-    /// An object that can be attached to a <see cref="Microsoft.Xna.Framework.Game"/> and have its <see cref="Update"/>
-    /// method called when <see cref="Microsoft.Xna.Framework.Game.Update"/> is called.
+    /// An object that can be attached to a <see cref="Game"/> and have its <see cref="Update"/>
+    /// method called when <see cref="Game.Update"/> is called.
     /// </summary>
     public class GameComponent : IGameComponent, IUpdateable, IDisposable
     {
-        bool _enabled = true;
-        int _updateOrder;
-
-        /// <summary>
-        /// The <see cref="Game"/> that owns this <see cref="GameComponent"/>.
-        /// </summary>
-        public Game Game { get; private set; }
+        private bool _enabled = true;
+        private int _updateOrder;
 
         public bool Enabled
         {
@@ -55,10 +50,8 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Create a <see cref="GameComponent"/>.
         /// </summary>
-        /// <param name="game">The game that this component will belong to.</param>
-        public GameComponent(Game game)
+        public GameComponent()
         {
-            this.Game = game;
         }
 
         ~GameComponent()
@@ -66,13 +59,17 @@ namespace Microsoft.Xna.Framework
             Dispose(false);
         }
 
-        public virtual void Initialize() { }
+        public virtual void Initialize()
+        {
+        }
 
         /// <summary>
         /// Update the component.
         /// </summary>
         /// <param name="gameTime"><see cref="GameTime"/> of the <see cref="Game"/>.</param>
-        public virtual void Update(GameTime gameTime) { }
+        public virtual void Update(GameTime gameTime)
+        {
+        }
 
         /// <summary>
         /// Called when <see cref="UpdateOrder"/> changed. Raises the <see cref="UpdateOrderChanged"/> event.
@@ -97,8 +94,10 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Shuts down the component.
         /// </summary>
-        protected virtual void Dispose(bool disposing) { }
-        
+        protected virtual void Dispose(bool disposing)
+        {
+        }
+
         /// <summary>
         /// Shuts down the component.
         /// </summary>
@@ -107,6 +106,5 @@ namespace Microsoft.Xna.Framework
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
     }
 }

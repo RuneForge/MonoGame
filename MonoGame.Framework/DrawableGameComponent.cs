@@ -16,14 +16,6 @@ namespace Microsoft.Xna.Framework
         private int _drawOrder;
         private bool _visible = true;
 
-        /// <summary>
-        /// Get the <see cref="GraphicsDevice"/> that this <see cref="DrawableGameComponent"/> uses for drawing.
-        /// </summary>
-        public Graphics.GraphicsDevice GraphicsDevice
-        {
-            get { return this.Game.GraphicsDevice; } 
-        }
-
         public int DrawOrder
         {
             get { return _drawOrder; }
@@ -59,9 +51,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Create a <see cref="DrawableGameComponent"/>.
         /// </summary>
-        /// <param name="game">The game that this component will belong to.</param>
-        public DrawableGameComponent(Game game)
-            : base(game)
+        public DrawableGameComponent()
         {
         }
 
@@ -86,18 +76,24 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Load graphical resources needed by this component.
         /// </summary>
-        protected virtual void LoadContent() { }
+        protected virtual void LoadContent()
+        {
+        }
 
         /// <summary>
         /// Unload graphical resources needed by this component.
         /// </summary>
-        protected virtual void UnloadContent () { }
+        protected virtual void UnloadContent()
+        {
+        }
 
         /// <summary>
         /// Draw this component.
         /// </summary>
         /// <param name="gameTime">The time elapsed since the last call to <see cref="Draw"/>.</param>
-        public virtual void Draw(GameTime gameTime) { }
+        public virtual void Draw(GameTime gameTime)
+        {
+        }
 
         /// <summary>
         /// Called when <see cref="Visible"/> changed.
