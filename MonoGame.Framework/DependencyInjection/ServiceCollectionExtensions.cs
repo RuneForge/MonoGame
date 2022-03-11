@@ -49,6 +49,7 @@ namespace Microsoft.Xna.Framework.DependencyInjection
 
             // Register a user-defined type derived from the Game type.
             services.AddSingleton(serviceProvider => gameFactoryMethod(serviceProvider));
+            services.AddSingleton(serviceProvider => new Lazy<Game>(() => serviceProvider.GetRequiredService<Game>()));
 
             // Register a default and a lazy-initialized instance of the GamePlatform internal type.
             services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().Platform);
