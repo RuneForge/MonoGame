@@ -15,11 +15,12 @@ namespace Microsoft.Xna.Framework.DependencyInjection
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <param name="gameFactoryMethod">The factory method creating an instance of the <see cref="Game" /> type.</param>
-        public static void AddMonoGame(this IServiceCollection services, GameFactoryMethod gameFactoryMethod)
+        public static IServiceCollection AddMonoGame(this IServiceCollection services, GameFactoryMethod gameFactoryMethod)
         {
 #if NETSTANDARD && DESKTOPGL
             AddMonoGameInternal(services, gameFactoryMethod);
 #endif
+            return services;
         }
 
         private static Lazy<T> GetLazyInitializedGameService<T>(IServiceProvider serviceProvider, Func<Game, T> serviceFactoryMethod)
@@ -47,19 +48,19 @@ namespace Microsoft.Xna.Framework.DependencyInjection
             });
 
             // Register a user-defined type derived from the Game type.
-            services.AddSingleton(serviceProvider =>
-            {
-                GameWindow gameWindow = serviceProvider.GetRequiredService<GameWindow>();
-                return gameFactoryMethod(serviceProvider, gameWindow);
-            });
-
-            // Register instances of the GameComponentCollection and LaunchParameterCollection types.
-            services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().Components);
-            services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().LaunchParameters);
+            services.AddSingleton(serviceProvider => gameFactoryMethod(serviceProvider));
 
             // Register a default and a lazy-initialized instance of the GamePlatform internal type.
             services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().Platform);
             services.AddSingleton(serviceProvider => GetLazyInitializedGameService(serviceProvider, game => game.Platform));
+
+            // Register a default and a lazy-initialized instance of the GameComponentCollection type.
+            services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().Components);
+            services.AddSingleton(serviceProvider => GetLazyInitializedGameService(serviceProvider, game => game.Components));
+
+            // Register a default and a lazy-initialized instance of the LaunchParameterCollection type.
+            services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<Game>().LaunchParameters);
+            services.AddSingleton(serviceProvider => GetLazyInitializedGameService(serviceProvider, game => game.LaunchParameters));
 
             // Register a default and a lazy-initialized instance of the IGraphicsDeviceService type.
             services.AddSingleton<IGraphicsDeviceService>(serviceProvider => serviceProvider.GetRequiredService<Game>().GraphicsDeviceManager);
